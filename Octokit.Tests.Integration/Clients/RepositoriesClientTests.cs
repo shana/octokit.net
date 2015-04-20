@@ -552,6 +552,21 @@ public class RepositoriesClientTests
 
             Assert.True(repositories.Count > 80);
         }
+
+        [IntegrationTest]
+        public async Task ReturnsAllPublicRepositoriesSinceLastSeen()
+        {
+            var github = Helper.GetAuthenticatedClient();
+
+            var request = new PublicRepositoryRequest(32732250);
+            var repositories = await github.Repository.GetAllPublic(request);
+
+            Assert.NotNull(repositories);
+            Assert.True(repositories.Any());
+            Assert.Equal(32732252, repositories[0].Id);
+            Assert.False(repositories[0].Private);
+            Assert.Equal("zad19", repositories[0].Name);
+        }
     }
 
     public class TheGetAllForOrgMethod
@@ -564,33 +579,6 @@ public class RepositoriesClientTests
             var repositories = await github.Repository.GetAllForOrg("github");
 
             Assert.True(repositories.Count > 80);
-        }
-    }
-
-    public class TheGetReadmeMethod
-    {
-        [IntegrationTest]
-        public async Task ReturnsReadmeForSeeGit()
-        {
-            var github = Helper.GetAuthenticatedClient();
-
-            var readme = await github.Repository.GetReadme("octokit", "octokit.net");
-            Assert.Equal("README.md", readme.Name);
-            string readMeHtml = await readme.GetHtmlContent();
-            Assert.True(readMeHtml.StartsWith("<div class="));
-            Assert.Contains(@"data-path=""README.md"" id=""file""", readMeHtml);
-            Assert.Contains("Octokit - GitHub API Client Library for .NET", readMeHtml);
-        }
-
-        [IntegrationTest]
-        public async Task ReturnsReadmeHtmlForSeeGit()
-        {
-            var github = Helper.GetAuthenticatedClient();
-
-            var readmeHtml = await github.Repository.GetReadmeHtml("octokit", "octokit.net");
-            Assert.True(readmeHtml.StartsWith("<div class="));
-            Assert.Contains(@"data-path=""README.md"" id=""readme""", readmeHtml);
-            Assert.Contains("Octokit - GitHub API Client Library for .NET", readmeHtml);
         }
     }
 

@@ -49,7 +49,19 @@ namespace Octokit.Reactive
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate",
             Justification = "Makes a network request")]
         IObservable<Repository> GetAllPublic();
-        
+
+        /// <summary>
+        /// Retrieves every public <see cref="Repository"/> since the last repository seen.
+        /// </summary>
+        /// <remarks>
+        /// The default page size on GitHub.com is 30.
+        /// </remarks>
+        /// <param name="request">Search parameters of the last repository seen</param>
+        /// <returns>A <see cref="IReadOnlyPagedCollection{Repository}"/> of <see cref="Repository"/>.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate",
+            Justification = "Makes a network request")]
+        IObservable<Repository> GetAllPublic(PublicRepositoryRequest request);
+
         /// <summary>
         /// Retrieves every <see cref="Repository"/> that belongs to the current user.
         /// </summary>
@@ -96,24 +108,6 @@ namespace Octokit.Reactive
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate",
             Justification = "Makes a network request")]
         IObservable<Repository> GetAllForOrg(string organization);
-
-        /// <summary>
-        /// Returns the HTML rendered README.
-        /// </summary>
-        /// <param name="owner">The owner of the repository</param>
-        /// <param name="name">The name of the repository</param>
-        /// <returns></returns>
-        [Obsolete("This method has been obsoleted by Content.GetReadme. Please use that instead.")]
-        IObservable<Readme> GetReadme(string owner, string name);
-
-        /// <summary>
-        /// Returns just the HTML portion of the README without the surrounding HTML document. 
-        /// </summary>
-        /// <param name="owner">The owner of the repository</param>
-        /// <param name="name">The name of the repository</param>
-        /// <returns></returns>
-        [Obsolete("This method has been obsoleted by Content.GetReadmeHtml. Please use that instead.")]
-        IObservable<string> GetReadmeHtml(string owner, string name);
 
         /// <summary>
         /// A client for GitHub's Commit Status API.

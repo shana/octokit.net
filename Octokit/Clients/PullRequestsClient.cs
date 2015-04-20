@@ -40,9 +40,9 @@ namespace Octokit
         /// <param name="owner">The owner of the repository</param>
         /// <param name="name">The name of the repository</param>
         /// <returns>A <see cref="IReadOnlyList{PullRequest}"/> of <see cref="PullRequest"/>s which are currently open</returns>
-        public Task<IReadOnlyList<PullRequest>> GetForRepository(string owner, string name)
+        public Task<IReadOnlyList<PullRequest>> GetAllForRepository(string owner, string name)
         {
-            return GetForRepository(owner, name, new PullRequestRequest());
+            return GetAllForRepository(owner, name, new PullRequestRequest());
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Octokit
         /// <param name="name">The name of the repository</param>
         /// <param name="request">Used to filter and sort the list of pull requests returned</param>
         /// <returns>A <see cref="IReadOnlyList{PullRequest}"/> of <see cref="PullRequest"/>s which match the criteria</returns>
-        public Task<IReadOnlyList<PullRequest>> GetForRepository(string owner, string name, PullRequestRequest request)
+        public Task<IReadOnlyList<PullRequest>> GetAllForRepository(string owner, string name, PullRequestRequest request)
         {
             Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
@@ -158,6 +158,22 @@ namespace Octokit
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
             return ApiConnection.GetAll<PullRequestCommit>(ApiUrls.PullRequestCommits(owner, name, number));
+        }
+
+        /// <summary>
+        /// Get the list of files on a pull request.
+        /// </summary>
+        /// <remarks>https://developer.github.com/v3/pulls/#list-pull-requests-files</remarks>
+        /// <param name="owner">The owner of the repository</param>
+        /// <param name="name">The name of the repository</param>
+        /// <param name="number">The pull request number</param>
+        /// <returns>A <see cref="IReadOnlyList{PullRequestFile}"/> which are part of this pull request</returns>
+        public Task<IReadOnlyList<PullRequestFile>> Files(string owner, string name, int number)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            return ApiConnection.GetAll<PullRequestFile>(ApiUrls.PullRequestFiles(owner, name, number));
         }
     }
 }
