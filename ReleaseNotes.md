@@ -1,3 +1,24 @@
+### New in 0.9.0 (released 2015/04/04)
+* New: added `PullRequest.Files` APIs - #752 via @alfhenrik
+* Fixed: `PullRequestRequest` now supports `SortDirection` and `SortProperty` - #752 via @alfhenrik
+* Fixed: `Repository.Create` now enforces a repository name - #763 via @haacked
+* Fixed: corrected naming conventions for endpoints which return a list of results - #766 via @alfhenrik
+* Deprecated: `Repository.GetReadme` and `Repository.GetReadmeHtml` - #759 via @khellang
+
+**Breaking Changes:**
+ - `NewRepository` constructor requires a `name` parameter
+ - `IRepositoriesClient.GetReadme` -> `IRepositoriesClient.Content.GetReadme`
+ - `IRepositoriesClient.GetReadmeHtml` -> `IRepositoriesClient.Content.GetReadmeHtml`
+ - `IFollowersClient.GetFollowingForCurrent` -> `IFollowersClient.GetAllFollowingForCurrent`
+ - `IFollowersClient.GetFollowing` -> `IFollowersClient.GetAllFollowing`
+
+### New in 0.8.0 (released 2015/03/20)
+* New: added `MiscellaneousClient.GetGitIgnoreTemplates` and `MiscellaneousClient.GetGitIgnoreTemplates` APIs - #753 via @haacked
+* New: added `MiscellaneousClient.GetLicenses` and `MiscellaneousClient.GetLicense` preview APIs - #754 via @haacked
+* New: enhancements to `AuthorizationClient`- #731 via @alfhenrik
+* Fixed: handled `unsubscribe` type for Issue events - #751 via @darrencamp
+* Fixes: ensure response models define readonly interfaces - #755 via @khellang
+
 ### New in 0.7.3 (released 2015/03/06)
 * New: added `Repository.GetAllPublic` for searching public repositories - #691 via @rms81
 * New: added filters to `Repository.GetAllForCurrent()` - #742 via @shiftkey

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using Octokit.Tests.Helpers;
@@ -34,6 +35,53 @@ namespace Octokit.Tests.Conventions
 
                 Assert.True(setter == null || !setter.IsPublic);
             }
+        }
+
+        [Theory]
+        [MemberData("ResponseModelTypes")]
+        public void ResponseModelsHaveReadOnlyCollections(Type modelType)
+        {
+            foreach (var property in modelType.GetProperties())
+            {
+                var propertyType = property.PropertyType;
+
+                if (typeof(IEnumerable).IsAssignableFrom(propertyType))
+                {
+                    // Let's skip arrays as well for now.
+                    // There seems to be some special array handling in the Gist model.
+                    if (propertyType == typeof(string) || propertyType.IsArray)
+                    {
+                        continue;
+                    }
+
+                    AssertEx.IsReadOnlyCollection(propertyType);
+                }
+            }
+        }
+
+        //TODO: This should (probably) be moved to the PaginationTests class that is being introduced in PR #760
+        [Theory]
+        [MemberData("GetClientInterfaces")]
+        public void CheckPaginationGetAllMethodNames(Type clientInterface)
+        {
+            var methodsOrdered = clientInterface.GetMethodsOrdered();
+
+            var methodsThatCanPaginate = methodsOrdered
+                .Where(x => x.ReturnType.GetTypeInfo().TypeCategory == TypeCategory.ReadOnlyList)
+                .Where(x => x.Name.StartsWith("Get"));
+
+            var invalidMethods = methodsThatCanPaginate
+                .Where(x => !x.Name.StartsWith("GetAll"));
+
+            if (invalidMethods.Any())
+            {
+                throw new PaginationGetAllMethodNameMismatchException(clientInterface, invalidMethods);
+            }
+        }
+
+        public static IEnumerable<object[]> GetClientInterfaces()
+        {
+            return typeof(IEventsClient).Assembly.ExportedTypes.Where(TypeExtensions.IsClientInterface).Select(type => new[] { type });
         }
 
         public static IEnumerable<object[]> ModelTypes

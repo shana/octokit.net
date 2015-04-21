@@ -103,6 +103,21 @@ namespace Octokit.Reactive
         }
 
         /// <summary>
+        /// Retrieves every public <see cref="Repository"/> since the last repository seen.
+        /// </summary>
+        /// <remarks>
+        /// The default page size on GitHub.com is 30.
+        /// </remarks>
+        /// <param name="request">Search parameters of the last repository seen</param>
+        /// <returns>A <see cref="IReadOnlyPagedCollection{Repository}"/> of <see cref="Repository"/>.</returns>
+        public IObservable<Repository> GetAllPublic(PublicRepositoryRequest request)
+        {
+            Ensure.ArgumentNotNull(request, "request");
+
+            return _connection.GetAndFlattenAllPages<Repository>(ApiUrls.AllPublicRepositories(), request.ToParametersDictionary());
+        }
+
+        /// <summary>
         /// Retrieves every <see cref="Repository"/> that belongs to the current user.
         /// </summary>
         /// <remarks>
@@ -157,30 +172,6 @@ namespace Octokit.Reactive
             Ensure.ArgumentNotNullOrEmptyString(organization, "organization");
 
             return _connection.GetAndFlattenAllPages<Repository>(ApiUrls.OrganizationRepositories(organization));
-        }
-
-        /// <summary>
-        /// Returns the HTML rendered README.
-        /// </summary>
-        /// <param name="owner">The owner of the repository</param>
-        /// <param name="name">The name of the repository</param>
-        /// <returns></returns>
-        [Obsolete("This method has been obsoleted by Content.GetReadme. Please use that instead.")]
-        public IObservable<Readme> GetReadme(string owner, string name)
-        {
-            return _client.Content.GetReadme(owner, name).ToObservable();
-        }
-
-        /// <summary>
-        /// Returns just the HTML portion of the README without the surrounding HTML document. 
-        /// </summary>
-        /// <param name="owner">The owner of the repository</param>
-        /// <param name="name">The name of the repository</param>
-        /// <returns></returns>
-        [Obsolete("This method has been obsoleted by Content.GetReadmeHtml. Please use that instead.")]
-        public IObservable<string> GetReadmeHtml(string owner, string name)
-        {
-            return _client.Content.GetReadmeHtml(owner, name).ToObservable();
         }
 
         /// <summary>

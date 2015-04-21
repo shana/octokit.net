@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 #if NET_45
 using System.Collections.Generic;
 #endif
@@ -188,6 +189,24 @@ namespace Octokit
         }
 
         /// <summary>
+        /// Gets all public repositories since the integer ID of the last Repository that you've seen.
+        /// </summary>
+        /// <remarks>
+        /// See the <a href="https://developer.github.com/v3/repos/#list-all-public-repositories">API documentation</a> for more information.
+        /// The default page size on GitHub.com is 30.
+        /// </remarks>
+        /// <param name="request">Search parameters of the last repository seen</param>
+        /// <exception cref="AuthorizationException">Thrown if the client is not authenticated.</exception>
+        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
+        /// <returns>A <see cref="IReadOnlyPagedCollection{Repository}"/> of <see cref="Repository"/>.</returns>
+        public Task<IReadOnlyList<Repository>> GetAllPublic(PublicRepositoryRequest request)
+        {
+            Ensure.ArgumentNotNull(request, "request");
+
+            return ApiConnection.GetAll<Repository>(ApiUrls.AllPublicRepositories(), request.ToParametersDictionary());
+        }
+
+        /// <summary>
         /// Gets all repositories owned by the current user.
         /// </summary>
         /// <remarks>
@@ -250,38 +269,6 @@ namespace Octokit
             Ensure.ArgumentNotNullOrEmptyString(organization, "organization");
 
             return ApiConnection.GetAll<Repository>(ApiUrls.OrganizationRepositories(organization));
-        }
-
-        /// <summary>
-        /// Gets the preferred README for the specified repository.
-        /// </summary>
-        /// <remarks>
-        /// See the <a href="http://developer.github.com/v3/repos/contents/#get-the-readme">API documentation</a> for more information.
-        /// </remarks>
-        /// <param name="owner">The owner of the repository</param>
-        /// <param name="name">The name of the repository</param>
-        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
-        /// <returns></returns>
-        [Obsolete("This method has been obsoleted by Content.GetReadme. Please use that instead.")]
-        public Task<Readme> GetReadme(string owner, string name)
-        {
-            return Content.GetReadme(owner, name);
-        }
-
-        /// <summary>
-        /// Gets the perferred README's HTML for the specified repository.
-        /// </summary>
-        /// <remarks>
-        /// See the <a href="http://developer.github.com/v3/repos/contents/#get-the-readme">API documentation</a> for more information.
-        /// </remarks>
-        /// <param name="owner">The owner of the repository</param>
-        /// <param name="name">The name of the repository</param>
-        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
-        /// <returns></returns>
-        [Obsolete("This method has been obsoleted by Content.GetReadmeHtml. Please use that instead.")]
-        public Task<string> GetReadmeHtml(string owner, string name)
-        {
-            return Content.GetReadmeHtml(owner, name);
         }
 
         /// <summary>

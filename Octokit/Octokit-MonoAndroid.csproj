@@ -393,6 +393,9 @@
     <Compile Include="Models\Response\GitIgnoreTemplate.cs" />
     <Compile Include="Models\Response\License.cs" />
     <Compile Include="Models\Response\LicenseMetadata.cs" />
+    <Compile Include="Models\Response\PullRequestFile.cs" />
+    <Compile Include="Models\Request\PublicRepositoryRequest.cs" />
+    <Compile Include="Exceptions\TwoFactorAuthorizationException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
 </Project>
