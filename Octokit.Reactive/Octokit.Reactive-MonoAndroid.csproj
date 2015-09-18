@@ -13,7 +13,7 @@
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
     <AssemblyName>Octokit.Reactive</AssemblyName>
-    <TargetFrameworkVersion>v2.2</TargetFrameworkVersion>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -157,9 +157,13 @@
     <Compile Include="Clients\ObservableRepositoryDeployKeysClient.cs" />
     <Compile Include="Clients\IObservableUserKeysClient.cs" />
     <Compile Include="Clients\ObservableUserKeysClient.cs" />
+    <Compile Include="Clients\IObservableRepositoryForksClient.cs" />
+    <Compile Include="Clients\IObservableRepositoryHooksClient.cs" />
+    <Compile Include="Clients\ObservableRepositoryForksClient.cs" />
+    <Compile Include="Clients\ObservableRepositoryHooksClient.cs" />
     <Compile Include="Clients\IObservableRepositoryContentsClient.cs" />
     <Compile Include="Clients\ObservableRepositoryContentsClient.cs" />
-   	<Compile Include="Clients\IObservableMergingClient.cs" />
+    <Compile Include="Clients\IObservableMergingClient.cs" />
     <Compile Include="Clients\ObservableMergingClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

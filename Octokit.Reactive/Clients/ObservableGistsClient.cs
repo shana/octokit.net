@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Reactive.Threading.Tasks;
 using System.Reactive;
-using System.Net;
+using System.Reactive.Threading.Tasks;
 using Octokit.Reactive.Internal;
 
 namespace Octokit.Reactive
@@ -178,6 +177,34 @@ namespace Octokit.Reactive
 
             var request = new GistRequest(since);
             return _connection.GetAndFlattenAllPages<Gist>(ApiUrls.UsersGists(user), request.ToParametersDictionary());
+        }
+
+        /// <summary>
+        /// List gist commits
+        /// </summary>
+        /// <remarks>
+        /// http://developer.github.com/v3/gists/#list-gists-commits
+        /// </remarks>
+        /// <param name="id">The id of the gist</param>
+        public IObservable<GistHistory> GetAllCommits(string id)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(id, "id");
+
+            return _connection.GetAndFlattenAllPages<GistHistory>(ApiUrls.GistCommits(id));
+        }
+
+        /// <summary>
+        /// List gist forks
+        /// </summary>
+        /// <remarks>
+        /// http://developer.github.com/v3/gists/#list-gists-forks
+        /// </remarks>
+        /// <param name="id">The id of the gist</param>
+        public IObservable<GistFork> GetAllForks(string id)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(id, "id");
+
+            return _connection.GetAndFlattenAllPages<GistFork>(ApiUrls.ForkGist(id));
         }
 
         /// <summary>

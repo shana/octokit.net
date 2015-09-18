@@ -11,7 +11,7 @@ namespace Octokit.Internal
     /// </summary>
     public class JsonHttpPipeline
     {
-        private const string v3ApiVersion = "application/vnd.github.v3+json; charset=utf-8";
+        private const string v3ApiVersion = "application/vnd.github.quicksilver-preview+json; charset=utf-8, application/vnd.github.v3+json; charset=utf-8";
 
         readonly IJsonSerializer _serializer;
 
@@ -32,7 +32,6 @@ namespace Octokit.Internal
 
             if (!request.Headers.ContainsKey("Accept"))
             {
-
                 request.Headers["Accept"] = v3ApiVersion;
             }
             
@@ -54,11 +53,11 @@ namespace Octokit.Internal
                 {
                     var typeIsDictionary = typeof(IDictionary).IsAssignableFrom(typeof(T));
                     var typeIsEnumerable = typeof(IEnumerable).IsAssignableFrom(typeof(T));
-                    var responseIsArray = body.StartsWith("{", StringComparison.Ordinal);
+                    var responseIsObject = body.StartsWith("{", StringComparison.Ordinal);
 
                     // If we're expecting an array, but we get a single object, just wrap it.
                     // This supports an api that dynamically changes the return type based on the content.
-                    if (!typeIsDictionary && typeIsEnumerable && responseIsArray)
+                    if (!typeIsDictionary && typeIsEnumerable && responseIsObject)
                     {
                         body = "[" + body + "]";
                     }

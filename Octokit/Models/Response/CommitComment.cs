@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Octokit
 {
@@ -56,7 +52,7 @@ namespace Octokit
         /// <summary>
         /// Line index in the diff that was commented on.
         /// </summary>
-        public int Position { get; protected set; }
+        public int? Position { get; protected set; }
 
         /// <summary>
         /// The line number in the file that was commented on.

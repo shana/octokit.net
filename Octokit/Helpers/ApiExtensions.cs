@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 #if NET_45
 using System.Collections.Generic;
 #endif
-using System.Threading.Tasks;
 
 namespace Octokit
 {
@@ -88,6 +88,14 @@ namespace Octokit
             Ensure.ArgumentNotNull(uri, "uri");
 
             return connection.Get<T>(uri, null, null);
+        }
+
+        public static Task<IApiResponse<T>> GetRedirect<T>(this IConnection connection, Uri uri)
+        {
+            Ensure.ArgumentNotNull(connection, "connection");
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            return connection.Get<T>(uri, null, null, false);
         }
 
         /// <summary>

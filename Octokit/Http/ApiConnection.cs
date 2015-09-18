@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -131,6 +132,19 @@ namespace Octokit
 
             return _pagination.GetAllPages(async () => await GetPage<T>(uri, parameters, accepts)
                                                                  .ConfigureAwait(false), uri);
+        }
+
+        /// <summary>
+        /// Creates a new API resource in the list at the specified URI.
+        /// </summary>
+        /// <param name="uri">URI endpoint to send request to</param>
+        /// <returns><seealso cref="HttpStatusCode"/>Representing the received HTTP response</returns>
+        /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
+        public Task Post(Uri uri)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            return Connection.Post(uri);
         }
 
         /// <summary>
@@ -388,32 +402,58 @@ namespace Octokit
 
         /// <summary>
         /// Executes a GET to the API object at the specified URI. This operation is appropriate for
-        /// API calls which queue long running calculations.
-        /// It expects the API to respond with an initial 202 Accepted, and queries again until a 
-        /// 200 OK is received.
+        /// API calls which wants to return the redirect URL.
+        /// It expects the API to respond with a 302 Found.
+        /// </summary>
+        /// <param name="uri">URI of the API resource to get</param>
+        /// <returns>The URL returned by the API in the Location header</returns>
+        /// <exception cref="ApiException">Thrown when an API error occurs, or the API does not respond with a 302 Found</exception>
+        public async Task<string> GetRedirect(Uri uri)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+            var response = await Connection.GetRedirect<string>(uri);
+
+            if (response.HttpResponse.StatusCode == HttpStatusCode.Redirect)
+            {
+                return response.HttpResponse.Headers["Location"];
+            }
+
+            throw new ApiException("Redirect Operation expect status code of Redirect.",
+                response.HttpResponse.StatusCode);
+        }
+
+        /// <summary>
+        /// Executes a GET to the API object at the specified URI. This operation is appropriate for API calls which 
+        /// queue long running calculations and return a collection of a resource.
+        /// It expects the API to respond with an initial 202 Accepted, and queries again until a 200 OK is received.
+        /// It returns an empty collection if it receives a 204 No Content response.
         /// </summary>
         /// <typeparam name="T">The API resource's type.</typeparam>
         /// <param name="uri">URI of the API resource to update</param>
         /// <param name="cancellationToken">A token used to cancel this potentially long running request</param>
         /// <returns>The updated API resource.</returns>
         /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
-        public async Task<T> GetQueuedOperation<T>(Uri uri, CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<T>> GetQueuedOperation<T>(Uri uri, CancellationToken cancellationToken)
         {
-            Ensure.ArgumentNotNull(uri, "uri");
-
-            var response = await Connection.GetResponse<T>(uri, cancellationToken);
-
-            if (response.HttpResponse.StatusCode == HttpStatusCode.Accepted)
+            while (true)
             {
-                return await GetQueuedOperation<T>(uri, cancellationToken);
-            }
+                Ensure.ArgumentNotNull(uri, "uri");
 
-            if (response.HttpResponse.StatusCode == HttpStatusCode.OK)
-            {
-                return response.Body;
+                var response = await Connection.GetResponse<IReadOnlyList<T>>(uri, cancellationToken);
+
+                switch (response.HttpResponse.StatusCode)
+                {
+                    case HttpStatusCode.Accepted:
+                        continue;
+                    case HttpStatusCode.NoContent:
+                        return new ReadOnlyCollection<T>(new T[] {});
+                    case HttpStatusCode.OK:
+                        return response.Body;
+                }
+
+                throw new ApiException("Queued Operations expect status codes of Accepted, No Content, or OK.",
+                    response.HttpResponse.StatusCode);
             }
-            throw new ApiException("Queued Operations expect status codes of Accepted or OK.",
-                response.HttpResponse.StatusCode);
         }
 
         async Task<IReadOnlyPagedCollection<T>> GetPage<T>(

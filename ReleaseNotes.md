@@ -1,3 +1,61 @@
+### New in 0.16.0 (released 2015/09/17)
+
+* New: Implemented `GetMetadata` method of `IMiscellaneousClient` to retrieve information from the Meta endpoint -#892 via @haacked
+* Improved: Add missing `ClosedAt` property to `Milestone` response - #890 via @geek0r
+* Fixed: `NullReferenceException` when retrieving contributors for an empty repository - #897 via @adamralph
+* Fixed: Bug that prevented release uploads and will unblock the entire F# ecosystem - #895 via @naveensrinivasan
+
+### New in 0.15.0 (released 2015/09/11)
+* New: `IRepositoryContentsClient.GetAllContents` now has an overload to support specifying a reference - #730 via @goalie7960
+* New: Support for retrieving rate limit information from `IMiscellaneousClient` - #848 via @Red-Folder
+* New: Use `GitHubClient.GetLastApiInfo()` to get API information for previous request - #855 via @Red-Folder, @khellang
+* New: `PreviousFileName` returned to show renamed files in commit - #871 via @CorinaCiocanea
+* Improved: `CommentUrl` returned on `Issue` response - #884 via @naveensrinivasan
+* Improved: Issue and Code Search now accepts multiple repositories - #835 via @shiftkey
+* Improved: Search now accepts a range of dates - #857 via @ChrisMissal
+* Improved: Documentation on `Issue` response - #876 via @Eilon
+* Improved: Code Search now accepts `FileName` parameter - #864 via @fffej
+* Fixed: `GetQueuedContent` should return empty response for `204 No Content`, instead of throwing - #862 via @haacked
+* Fixed: `TeamClient.AddMembership` sends correct parameter to server - #856 via @davidalpert
+* Obsolete: `Authorization` endpoint which does not require fingerprint - #878 via @niik
+
+**Breaking Changes:**
+ - #835 has changed the `Repos` property for `SearchIssuesRequest` and `SearchCodeRequest`
+   are now of type `RepositoryCollection` so that multiple repositories can be searched.
+ - The workarounds removed in #878 were added initially to support transitioning, but now
+   we enforce the use of a fingerprint. See https://developer.github.com/v3/oauth_authorizations/
+   for more details.
+
+
+### New in 0.14.0 (released 2015/07/21)
+* New: Repository redirects are supported natively - #808 via @darrelmiller, @shiftkey
+* Fixed: Support for searching repositories without a search term - #828 via @alexandrugyori
+
+### New in 0.13.0 (released 2015/06/17)
+* Fixed: Added some missing Organization Teams methods - #795 via @phantomtypist, @shiftkey
+
+### New in 0.12.0 (released 2015/05/19)
+* New: Added support for repository hooks and forks - #776 via @kristianhald, @johnduhart and @AndyCross
+* Fixed: Merging a PR should permit specifying a SHA - #805 via @alfhenrik
+
+### New in 0.11.0 (released 2015/05/10)
+* New: Added overload to `IRepositoryClient.GetAllPublic` specifying a `since` parameter - #774 via @alfhenrik
+* New: Added `IGistsClient.GetAllCommits` and `IGistsClient.GetAllForks` implementations - #542 via @haagenson, #794 via @shiftkey
+* New: Added `IRepositoryContentsClient.GetArchiveLink` for getting archived code - #765 via @alfhenrik 
+* Fixed: `PullRequestFile` properties were not serialized correctly - #789 via @thedillonb
+* Fixed: Allow to download zip-attachments - #792 via @csware
+
+### New in 0.10.0 (released 2015/04/22)
+* Fixed: renamed methods to follow `GetAll` convention - #771 via @alfhenrik
+* Fixed: helper functions and cleanup to make using Authorization API easier to consume - #786 via @haacked
+
+**Breaking Changes:**
+ - As part of #771 there were many method which were returning collections
+   but the method name made it unclear. You might think that it wasn't much, but 
+   you'd be wrong. So if you have a method that no longer compile,
+   it is likely that you need to set the prefix to `GetAll` to re-disocver that API.
+ - `CommitComment.Position` is now a nullable `int` to prevent serialization issues.
+
 ### New in 0.9.0 (released 2015/04/04)
 * New: added `PullRequest.Files` APIs - #752 via @alfhenrik
 * Fixed: `PullRequestRequest` now supports `SortDirection` and `SortProperty` - #752 via @alfhenrik

@@ -23,7 +23,7 @@ namespace Octokit
         /// the user agent for analytics purposes.
         /// </param>
         public GitHubClient(ProductHeaderValue productInformation)
-            : this(new Connection(productInformation))
+            : this(new Connection(productInformation, GitHubApiUrl))
         {
         }
 
@@ -98,6 +98,15 @@ namespace Octokit
             GitDatabase = new GitDatabaseClient(apiConnection);
             Search = new SearchClient(apiConnection);
             Deployment = new DeploymentsClient(apiConnection);
+        }
+
+        /// <summary>
+        /// Gets the latest API Info - this will be null if no API calls have been made
+        /// </summary>
+        /// <returns><seealso cref="ApiInfo"/> representing the information returned as part of an Api call</returns>
+        public ApiInfo GetLastApiInfo()
+        {
+            return Connection.GetLastApiInfo();
         }
 
         /// <summary>

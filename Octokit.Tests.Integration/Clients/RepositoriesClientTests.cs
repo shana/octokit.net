@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Octokit;
-using Octokit.Tests.Helpers;
 using Octokit.Tests.Integration;
 using Xunit;
 
@@ -258,8 +257,8 @@ public class RepositoriesClientTests
             {
                 var message = string.Format(CultureInfo.InvariantCulture, "There is already a repository named '{0}' for the current account.", repoName);
 
-                var thrown = await AssertEx.Throws<RepositoryExistsException>(
-                    async () => await github.Repository.Create(repository));
+                var thrown = await Assert.ThrowsAsync<RepositoryExistsException>(
+                    () => github.Repository.Create(repository));
 
                 Assert.NotNull(thrown);
                 Assert.Equal(repoName, thrown.RepositoryName);
@@ -358,8 +357,8 @@ public class RepositoriesClientTests
                 var repositoryUrl = string.Format(CultureInfo.InvariantCulture, "https://github.com/{0}/{1}", Helper.Organization, repository.Name);
                 var message = string.Format(CultureInfo.InvariantCulture, "There is already a repository named '{0}' in the organization '{1}'.", repository.Name, Helper.Organization);
 
-                var thrown = await AssertEx.Throws<RepositoryExistsException>(
-                    async () => await github.Repository.Create(Helper.Organization, repository));
+                var thrown = await Assert.ThrowsAsync<RepositoryExistsException>(
+                    () => github.Repository.Create(Helper.Organization, repository));
 
                 Assert.NotNull(thrown);
                 Assert.Equal(repoName, thrown.RepositoryName);
@@ -540,7 +539,6 @@ public class RepositoriesClientTests
         }
     }
 
-    
     public class TheGetAllPublicMethod
     {
         [IntegrationTest(Skip = "Takes too long to run.")]
@@ -553,7 +551,7 @@ public class RepositoriesClientTests
             Assert.True(repositories.Count > 80);
         }
 
-        [IntegrationTest]
+        [IntegrationTest(Skip = "Takes too long to run.")]
         public async Task ReturnsAllPublicRepositoriesSinceLastSeen()
         {
             var github = Helper.GetAuthenticatedClient();

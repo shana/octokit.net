@@ -20,6 +20,8 @@ namespace Octokit.Reactive
             _client = client.Repository;
             _connection = client.Connection;
             CommitStatus = new ObservableCommitStatusClient(client);
+            Hooks = new ObservableRepositoryHooksClient(client);
+            Forks = new ObservableRepositoryForksClient(client);
             RepoCollaborators = new ObservableRepoCollaboratorsClient(client);
             Deployment = new ObservableDeploymentsClient(client);
             Statistics = new ObservableStatisticsClient(client);
@@ -114,7 +116,9 @@ namespace Octokit.Reactive
         {
             Ensure.ArgumentNotNull(request, "request");
 
-            return _connection.GetAndFlattenAllPages<Repository>(ApiUrls.AllPublicRepositories(), request.ToParametersDictionary());
+            var url = ApiUrls.AllPublicRepositories(request.Since);
+
+            return _connection.GetAndFlattenAllPages<Repository>(url);
         }
 
         /// <summary>
@@ -207,6 +211,18 @@ namespace Octokit.Reactive
         /// See the <a href="http://developer.github.com/v3/repos/comments/">Repository Comments API documentation</a> for more information.
         /// </remarks>
         public IObservableRepositoryCommentsClient RepositoryComments { get; private set; }
+
+        /// <summary>
+        /// A client for GitHub's Repository Hooks API.
+        /// </summary>
+        /// <remarks>See <a href="http://developer.github.com/v3/repos/hooks/">Hooks API documentation</a> for more information.</remarks>
+        public IObservableRepositoryHooksClient Hooks { get; private set; }
+
+        /// <summary>
+        /// A client for GitHub's Repository Forks API.
+        /// </summary>
+        /// <remarks>See <a href="http://developer.github.com/v3/repos/forks/">Forks API documentation</a> for more information.</remarks>        
+        public IObservableRepositoryForksClient Forks { get; private set; }
 
         /// <summary>
         /// Client for GitHub's Repository Contents API.

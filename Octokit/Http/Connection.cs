@@ -90,8 +90,9 @@ namespace Octokit
         /// The address to point this client to such as https://api.github.com or the URL to a GitHub Enterprise 
         /// instance</param>
         /// <param name="credentialStore">Provides credentials to the client when making requests</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope")]
         public Connection(ProductHeaderValue productInformation, Uri baseAddress, ICredentialStore credentialStore)
-            : this(productInformation, baseAddress, credentialStore, new HttpClientAdapter(), new SimpleJsonSerializer())
+            : this(productInformation, baseAddress, credentialStore, new HttpClientAdapter(HttpMessageHandlerFactory.CreateDefault), new SimpleJsonSerializer())
         {
         }
 
@@ -135,7 +136,39 @@ namespace Octokit
             _jsonPipeline = new JsonHttpPipeline();
         }
 
+        /// <summary>
+        /// Gets the latest API Info - this will be null if no API calls have been made
+        /// </summary>
+        /// <returns><seealso cref="ApiInfo"/> representing the information returned as part of an Api call</returns>
+        public ApiInfo GetLastApiInfo()
+        {
+            // We've choosen to not wrap the _lastApiInfo in a lock.  Originally the code was returning a reference - so there was a danger of
+            // on thread writing to the object while another was reading.  Now we are cloning the ApiInfo on request - thus removing the need (or overhead)
+            // of putting locks in place.
+            // See https://github.com/octokit/octokit.net/pull/855#discussion_r36774884
+            return _lastApiInfo == null ? null : _lastApiInfo.Clone();
+        }
+        private ApiInfo _lastApiInfo;
+
         public Task<IApiResponse<T>> Get<T>(Uri uri, IDictionary<string, string> parameters, string accepts)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            return SendData<T>(uri.ApplyParameters(parameters), HttpMethod.Get, null, accepts, null, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Performs an asynchronous HTTP GET request.
+        /// Attempts to map the response to an object of type <typeparamref name="T"/>
+        /// </summary>
+        /// <typeparam name="T">The type to map the response to</typeparam>
+        /// <param name="uri">URI endpoint to send request to</param>
+        /// <param name="parameters">Querystring parameters for the request</param>
+        /// <param name="accepts">Specifies accepted response media types.</param>
+        /// <param name="allowAutoRedirect">To follow redirect links automatically or not</param>
+        /// <returns><seealso cref="IResponse"/> representing the received HTTP response</returns>
+        [Obsolete("allowAutoRedirect is no longer respected and will be deprecated in a future release")]
+        public Task<IApiResponse<T>> Get<T>(Uri uri, IDictionary<string, string> parameters, string accepts, bool allowAutoRedirect)
         {
             Ensure.ArgumentNotNull(uri, "uri");
 
@@ -147,6 +180,13 @@ namespace Octokit
             Ensure.ArgumentNotNull(uri, "uri");
 
             return SendData<T>(uri.ApplyParameters(parameters), HttpMethod.Get, null, accepts, null, cancellationToken);
+        }
+
+        public Task<IApiResponse<T>> Get<T>(Uri uri, TimeSpan timeout)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            return SendData<T>(uri, HttpMethod.Get, null, null, null, timeout, CancellationToken.None);
         }
 
         /// <summary>
@@ -182,6 +222,19 @@ namespace Octokit
             Ensure.ArgumentNotNull(accepts, "accepts");
 
             return SendData<T>(uri, HttpVerb.Patch, body, accepts, null, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Performs an asynchronous HTTP POST request.
+        /// </summary>
+        /// <param name="uri">URI endpoint to send request to</param>
+        /// <returns><seealso cref="IResponse"/> representing the received HTTP response</returns>
+        public async Task<HttpStatusCode> Post(Uri uri)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            var response = await SendData<object>(uri, HttpMethod.Post, null, null, null, CancellationToken.None);
+            return response.HttpResponse.StatusCode;
         }
 
         public Task<IApiResponse<T>> Post<T>(Uri uri, object body, string accepts, string contentType)
@@ -485,6 +538,11 @@ namespace Octokit
             request.Headers.Add("User-Agent", UserAgent);
             await _authenticator.Apply(request).ConfigureAwait(false);
             var response = await _httpClient.Send(request, cancellationToken).ConfigureAwait(false);
+            if (response != null)
+            {
+                // Use the clone method to avoid keeping hold of the original (just in case it effect the lifetime of the whole response
+                _lastApiInfo = response.ApiInfo.Clone();
+            }
             HandleErrors(response);
             return response;
         }

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 #if NET_45
 using System.Collections.Generic;
 #endif
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.ObjectModel;
 
 namespace Octokit
 {
@@ -24,6 +23,8 @@ namespace Octokit
         public RepositoriesClient(IApiConnection apiConnection) : base(apiConnection)
         {
             CommitStatus = new CommitStatusClient(apiConnection);
+            Hooks = new RepositoryHooksClient(apiConnection);
+            Forks = new RepositoryForksClient(apiConnection);
             RepoCollaborators = new RepoCollaboratorsClient(apiConnection);
             Statistics = new StatisticsClient(apiConnection);
             Deployment = new DeploymentsClient(apiConnection);
@@ -203,7 +204,9 @@ namespace Octokit
         {
             Ensure.ArgumentNotNull(request, "request");
 
-            return ApiConnection.GetAll<Repository>(ApiUrls.AllPublicRepositories(), request.ToParametersDictionary());
+            var url = ApiUrls.AllPublicRepositories(request.Since);
+
+            return ApiConnection.GetAll<Repository>(url);
         }
 
         /// <summary>
@@ -280,6 +283,18 @@ namespace Octokit
         /// that announced this feature.
         /// </remarks>
         public ICommitStatusClient CommitStatus { get; private set; }
+
+        /// <summary>
+        /// A client for GitHub's Repository Hooks API.
+        /// </summary>
+        /// <remarks>See <a href="http://developer.github.com/v3/repos/hooks/">Hooks API documentation</a> for more information.</remarks>
+        public IRepositoryHooksClient Hooks { get; private set; }
+
+        /// <summary>
+        /// A client for GitHub's Repository Forks API.
+        /// </summary>
+        /// <remarks>See <a href="http://developer.github.com/v3/repos/forks/">Forks API documentation</a> for more information.</remarks>        
+        public IRepositoryForksClient Forks { get; private set; }
 
         /// <summary>
         /// A client for GitHub's Repo Collaborators.

@@ -1,9 +1,8 @@
-using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 #if NET_45
 using System.Collections.Generic;
 #endif
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace Octokit
 {
@@ -187,6 +186,18 @@ namespace Octokit
         /// that announced this feature.
         /// </remarks>
         ICommitStatusClient CommitStatus { get; }
+
+        /// <summary>
+        /// A client for GitHub's Repository Hooks API.
+        /// </summary>
+        /// <remarks>See <a href="http://developer.github.com/v3/repos/hooks/">Hooks API documentation</a> for more information.</remarks>
+        IRepositoryHooksClient Hooks { get; }
+
+        /// <summary>
+        /// A client for GitHub's Repository Forks API.
+        /// </summary>
+        /// <remarks>See <a href="http://developer.github.com/v3/repos/forks/">Forks API documentation</a> for more information.</remarks>        
+        IRepositoryForksClient Forks { get; }
 
         /// <summary>
         /// A client for GitHub's Repo Collaborators.

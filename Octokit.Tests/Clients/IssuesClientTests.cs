@@ -30,8 +30,8 @@ namespace Octokit.Tests.Clients
             {
                 var client = new IssuesClient(Substitute.For<IApiConnection>());
 
-                await AssertEx.Throws<ArgumentNullException>(async () => await client.Get(null, "name", 1));
-                await AssertEx.Throws<ArgumentNullException>(async () => await client.Get("owner", null, 1));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.Get(null, "name", 1));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.Get("owner", null, 1));
             }
 
         }
@@ -237,6 +237,7 @@ namespace Octokit.Tests.Clients
 
             Assert.Equal(new Uri("https://api.github.com/repos/octokit-net-test/public-repo-20131022050247078/issues/1"), response.Body.Url);
             Assert.Equal(new Uri("https://github.com/octokit-net-test/public-repo-20131022050247078/issues/1"), response.Body.HtmlUrl);
+            Assert.Equal(new Uri("https://api.github.com/repos/octokit-net-test/public-repo-20131022050247078/issues/1/comments"), response.Body.CommentsUrl);
         }
     }
 }
