@@ -12,16 +12,30 @@ namespace Octokit
     public class NewAuthorization
     {
         // TODO: I'd love to not need this
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewAuthorization"/> class.
+        /// </summary>
         public NewAuthorization()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewAuthorization"/> class.
+        /// </summary>
+        /// <param name="note">The note.</param>
+        /// <param name="scopes">The scopes.</param>
         public NewAuthorization(string note, IEnumerable<string> scopes)
         {
             Scopes = scopes;
             Note = note;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewAuthorization"/> class.
+        /// </summary>
+        /// <param name="note">The note.</param>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="fingerprint">The fingerprint.</param>
         public NewAuthorization(string note, IEnumerable<string> scopes, string fingerprint)
         {
             Scopes = scopes;
@@ -53,7 +67,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Note: {0}", Note);
+                return string.Format(CultureInfo.InvariantCulture, "Note: {0}", Note);
             }
         }
     }

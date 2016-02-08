@@ -38,8 +38,8 @@
     <Prefer32Bit>false</Prefer32Bit>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\Octokit.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile />
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -79,10 +79,16 @@
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
+    <Compile Include="Clients\Enterprise\ObservableEnterpriseAdminStatsClient.cs" />
+    <Compile Include="Clients\Enterprise\IObservableEnterpriseAdminStatsClient.cs" />
+    <Compile Include="Clients\Enterprise\IObservableEnterpriseClient.cs" />
+    <Compile Include="Clients\Enterprise\ObservableEnterpriseClient.cs" />
     <Compile Include="Clients\IObservableMergingClient.cs" />
     <Compile Include="Clients\IObservableOauthClient.cs" />
     <Compile Include="Clients\IObservableRepositoryCommitsClients.cs" />
     <Compile Include="Clients\IObservableRepositoryDeployKeysClient.cs" />
+    <Compile Include="Clients\IObservableRepositoryPagesClient.cs" />
+    <Compile Include="Clients\IObservableUserAdministrationClient.cs" />
     <Compile Include="Clients\IObservableUserKeysClient.cs" />
     <Compile Include="Clients\ObservableMergingClient.cs" />
     <Compile Include="Clients\ObservableRepositoryDeployKeysClient.cs" />
@@ -106,6 +112,7 @@
     <Compile Include="Clients\ObservableIssuesLabelsClient.cs" />
     <Compile Include="Clients\ObservableRepositoryCommitsClients.cs" />
     <Compile Include="Clients\ObservableRepositoryContentsClient.cs" />
+    <Compile Include="Clients\ObservableRepositoryPagesClient.cs" />
     <Compile Include="Clients\ObservableSearchClient.cs" />
     <Compile Include="Clients\IObservableBlobsClient.cs" />
     <Compile Include="Clients\IObservableGistCommentsClient.cs" />
@@ -159,6 +166,7 @@
     <Compile Include="Clients\ObservableTagsClient.cs" />
     <Compile Include="Clients\ObservableTreesClient.cs" />
     <Compile Include="Clients\ObservableFollowersClient.cs" />
+    <Compile Include="Clients\ObservableUserAdministrationClient.cs" />
     <Compile Include="Clients\ObservableUserEmailsClient.cs" />
     <Compile Include="Clients\ObservableUserKeysClient.cs" />
     <Compile Include="Clients\ObservableUsersClient.cs" />
@@ -187,7 +195,6 @@
       <Link>Key.snk</Link>
     </None>
     <None Include="app.config" />
-    <None Include="DocPlagiarizer.README.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -202,10 +209,6 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <UsingTask TaskName="DocPlagiarizerTask" AssemblyFile="..\packages\DocPlagiarizer.0.1.2\tools\DocPlagiarizer.dll" />
-  <Target Name="DocPlagiarizerTarget" BeforeTargets="Build">
-    <DocPlagiarizerTask />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

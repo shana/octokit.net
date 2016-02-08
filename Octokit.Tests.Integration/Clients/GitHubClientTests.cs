@@ -1,5 +1,6 @@
 ﻿using Octokit;
 using Octokit.Tests.Integration;
+using Octokit.Tests.Integration.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,23 +20,19 @@ public class GitHubClientTests
             var github = Helper.GetAuthenticatedClient();
             var repoName = Helper.MakeNameWithTimestamp("public-repo");
 
-            var createdRepository = await github.Repository.Create(new NewRepository(repoName));
-
-            try
+            using (var context = await github.CreateRepositoryContext(new NewRepository(repoName)))
             {
+                var createdRepository = context.Repository;
+
                 var result = github.GetLastApiInfo();
 
                 Assert.True(result.Links.Count == 0);
                 Assert.True(result.AcceptedOauthScopes.Count > -1);
                 Assert.True(result.OauthScopes.Count > -1);
-                Assert.False(String.IsNullOrEmpty(result.Etag));
+                Assert.False(string.IsNullOrEmpty(result.Etag));
                 Assert.True(result.RateLimit.Limit > 0);
                 Assert.True(result.RateLimit.Remaining > -1);
                 Assert.NotNull(result.RateLimit.Reset);
-            }
-            finally
-            {
-                Helper.DeleteRepo(createdRepository);
             }
         }
 
@@ -53,7 +50,7 @@ public class GitHubClientTests
             Assert.True(result.Links.Count > 0);
             Assert.True(result.AcceptedOauthScopes.Count > -1);
             Assert.True(result.OauthScopes.Count > -1);
-            Assert.False(String.IsNullOrEmpty(result.Etag));
+            Assert.False(string.IsNullOrEmpty(result.Etag));
             Assert.True(result.RateLimit.Limit > 0);
             Assert.True(result.RateLimit.Remaining > -1);
             Assert.NotNull(result.RateLimit.Reset);
@@ -73,11 +70,10 @@ public class GitHubClientTests
             Assert.True(result.Links.Count == 0);
             Assert.True(result.AcceptedOauthScopes.Count > 0);
             Assert.True(result.OauthScopes.Count > 0);
-            Assert.False(String.IsNullOrEmpty(result.Etag));
+            Assert.False(string.IsNullOrEmpty(result.Etag));
             Assert.True(result.RateLimit.Limit > 0);
             Assert.True(result.RateLimit.Remaining > -1);
             Assert.NotNull(result.RateLimit.Reset);
         }
-
     }
 }

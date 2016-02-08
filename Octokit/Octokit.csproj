@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <CodeAnalysisCulture>en-US</CodeAnalysisCulture>
     <LangVersion>5</LangVersion>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,8 +42,8 @@
     <Prefer32Bit>false</Prefer32Bit>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <CodeAnalysisRuleSet>..\Octokit.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile />
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -60,10 +62,16 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Clients\ActivitiesClient.cs" />
+    <Compile Include="Clients\Enterprise\EnterpriseAdminStatsClient.cs" />
+    <Compile Include="Clients\Enterprise\EnterpriseClient.cs" />
+    <Compile Include="Clients\Enterprise\IEnterpriseAdminStatsClient.cs" />
+    <Compile Include="Clients\Enterprise\IEnterpriseClient.cs" />
     <Compile Include="Clients\IMergingClient.cs" />
     <Compile Include="Clients\IOAuthClient.cs" />
     <Compile Include="Clients\IRepositoryCommitsClient.cs" />
     <Compile Include="Clients\IRepositoryDeployKeysClient.cs" />
+    <Compile Include="Clients\IRepositoryPagesClient.cs" />
+    <Compile Include="Clients\IUserAdministrationClient.cs" />
     <Compile Include="Clients\IUserKeysClient.cs" />
     <Compile Include="Clients\MergingClient.cs" />
     <Compile Include="Clients\OAuthClient.cs" />
@@ -74,13 +82,20 @@
     <Compile Include="Clients\IFeedsClient.cs" />
     <Compile Include="Clients\RepositoryCommitsClient.cs" />
     <Compile Include="Clients\RepositoryDeployKeysClient.cs" />
+    <Compile Include="Clients\RepositoryPagesClient.cs" />
+    <Compile Include="Clients\UserAdministrationClient.cs" />
     <Compile Include="Clients\UserKeysClient.cs" />
     <Compile Include="Clients\RepositoryContentsClient.cs" />
+    <Compile Include="Exceptions\InvalidGitIgnoreTemplateException.cs" />
     <Compile Include="Exceptions\PrivateRepositoryQuotaExceededException.cs" />
+    <Compile Include="Exceptions\PullRequestMismatchException.cs" />
+    <Compile Include="Exceptions\PullRequestNotMergeableException.cs" />
     <Compile Include="Exceptions\RepositoryExistsException.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Exceptions\RepositoryFormatException.cs" />
+    <Compile Include="Exceptions\RepositoryWebHookConfigException.cs" />
     <Compile Include="Exceptions\TwoFactorAuthorizationException.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helpers\AcceptHeaders.cs" />
     <Compile Include="Helpers\ApiErrorExtensions.cs" />
     <Compile Include="Helpers\ApiUrls.Authorizations.cs" />
     <Compile Include="Helpers\ApiUrls.Keys.cs" />
@@ -88,12 +103,16 @@
     <Compile Include="Helpers\HttpClientExtensions.cs" />
     <Compile Include="Helpers\PropertyOrField.cs" />
     <Compile Include="Helpers\SerializeNullAttribute.cs" />
+    <Compile Include="Helpers\WebHookConfigComparer.cs" />
     <Compile Include="Http\HttpMessageHandlerFactory.cs" />
     <Compile Include="Http\IApiInfoProvider.cs" />
     <Compile Include="Http\ProductHeaderValue.cs" />
     <Compile Include="Http\RequestBody.cs" />
+    <Compile Include="Models\Request\BranchUpdate.cs" />
     <Compile Include="Models\Request\GistFileUpdate.cs" />
+    <Compile Include="Models\Request\NewArbitraryMarkDown.cs" />
     <Compile Include="Models\Request\NewMerge.cs" />
+    <Compile Include="Models\Request\NewRepositoryWebHook.cs" />
     <Compile Include="Models\Request\PublicRepositoryRequest.cs" />
     <Compile Include="Models\Request\ReleaseAssetUpload.cs" />
     <Compile Include="Models\Request\RepositoryForksListRequest.cs" />
@@ -115,8 +134,20 @@
     <Compile Include="Models\Response\ActivityPayloads\PullRequestEventPayload.cs" />
     <Compile Include="Models\Response\ActivityPayloads\PushEventPayload.cs" />
     <Compile Include="Models\Response\ActivityPayloads\StarredEventPayload.cs" />
+    <Compile Include="Models\Response\BranchProtection.cs" />
     <Compile Include="Models\Response\CombinedCommitStatus.cs" />
     <Compile Include="Models\Response\CommitContent.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStats.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsComments.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsGists.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsHooks.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsIssues.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsMilestones.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsOrgs.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsPages.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsPulls.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsRepos.cs" />
+    <Compile Include="Models\Response\Enterprise\AdminStatsUsers.cs" />
     <Compile Include="Models\Response\GitIgnoreTemplate.cs" />
     <Compile Include="Models\Response\License.cs" />
     <Compile Include="Models\Response\LicenseMetadata.cs" />
@@ -126,6 +157,8 @@
     <Compile Include="Models\Response\GitHubCommitFile.cs" />
     <Compile Include="Models\Response\Meta.cs" />
     <Compile Include="Models\Response\MiscellaneousRateLimit.cs" />
+    <Compile Include="Models\Response\Page.cs" />
+    <Compile Include="Models\Response\PagesBuild.cs" />
     <Compile Include="Models\Response\PublicKey.cs" />
     <Compile Include="Models\Response\PullRequestFile.cs" />
     <Compile Include="Models\Response\ResourceRateLimit.cs" />
@@ -316,7 +349,7 @@
     <Compile Include="Models\Request\MilestoneRequest.cs" />
     <Compile Include="Models\Response\RepositoryHook.cs" />
     <Compile Include="Models\Response\GitTag.cs" />
-    <Compile Include="Models\Response\SignatureResponse.cs" />
+    <Compile Include="Models\Common\Committer.cs" />
     <Compile Include="Models\Response\TagObject.cs" />
     <Compile Include="Models\Response\AccountType.cs" />
     <Compile Include="Models\Response\WeeklyCommitActivity.cs" />
@@ -423,6 +456,8 @@
     <Compile Include="SimpleJson.cs" />
     <Compile Include="Models\Request\NewRepository.cs" />
     <Compile Include="Clients\UsersClient.cs" />
+    <Compile Include="Models\Response\RepositoryStar.cs" />
+    <Compile Include="Models\Response\UserStar.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\CustomDictionary.xml">
@@ -433,17 +468,21 @@
     <None Include="..\Key.snk">
       <Link>Key.snk</Link>
     </None>
+    <None Include="Models\README.md" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <UsingTask TaskName="DocPlagiarizerTask" AssemblyFile="..\packages\DocPlagiarizer.0.1.2\tools\DocPlagiarizer.dll" />
-  <Target Name="DocPlagiarizerTarget" BeforeTargets="Build">
-    <DocPlagiarizerTask />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets. -->
   <!--
   <Target Name="AfterBuild">

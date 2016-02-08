@@ -14,6 +14,10 @@ namespace Octokit
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SearchUsersRequest : BaseSearchRequest
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SearchUsersRequest"/> class.
+        /// </summary>
+        /// <param name="term">The search term.</param>
         public SearchUsersRequest(string term) : base(term)
         {
         }
@@ -24,6 +28,9 @@ namespace Octokit
         /// </summary>
         public UsersSearchSort? SortField { get; set; }
 
+        /// <summary>
+        /// The sort field as a string.
+        /// </summary>
         public override string Sort
         {
             get { return SortField.ToParameter(); }
@@ -90,37 +97,37 @@ namespace Octokit
 
             if (AccountType != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "type:{0}", AccountType));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "type:{0}", AccountType));
             }
 
             if (In != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "in:{0}", String.Join(",", In)));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "in:{0}", string.Join(",", In)));
             }
 
             if (Repositories != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "repos:{0}", Repositories));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "repos:{0}", Repositories));
             }
 
             if (Location.IsNotBlank())
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "location:{0}", Location));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "location:{0}", Location));
             }
 
             if (Language != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "language:{0}", Language));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "language:{0}", Language));
             }
 
             if (Created != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "created:{0}", Created));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "created:{0}", Created));
             }
 
             if (Followers != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "followers:{0}", Followers));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "followers:{0}", Followers));
             }
 
             return new ReadOnlyCollection<string>(parameters);
@@ -130,7 +137,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Term: {0} Sort: {1}", Term, Sort);
+                return string.Format(CultureInfo.InvariantCulture, "Term: {0} Sort: {1}", Term, Sort);
             }
         }
     }

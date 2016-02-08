@@ -10,6 +10,10 @@ namespace Octokit
     /// </remarks>
     public class MergingClient : ApiClient, IMergingClient
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MergingClient"/> class.
+        /// </summary>
+        /// <param name="apiConnection">The client's connection</param>
         public MergingClient(IApiConnection apiConnection) : base(apiConnection)
         {
         }
@@ -29,7 +33,7 @@ namespace Octokit
             Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(merge, "merge");
-            
+
             return ApiConnection.Post<Merge>(ApiUrls.CreateMerge(owner, name), merge);
         }
     }

@@ -1,4 +1,4 @@
-#r @"tools\FAKE.Core\tools\FakeLib.dll"
+#r @"tools/FAKE.Core/tools/FakeLib.dll"
 #load "tools/SourceLink.Fake/tools/SourceLink.fsx"
 open Fake 
 open System
@@ -20,8 +20,10 @@ let buildDir = "./Octokit/bin"
 let reactiveBuildDir = "./Octokit.Reactive/bin"
 let testResultsDir = "./testresults"
 let packagingRoot = "./packaging/"
+let samplesDir = "./samples"
 let packagingDir = packagingRoot @@ "octokit"
 let reactivePackagingDir = packagingRoot @@ "octokit.reactive"
+let linqPadDir = "./tools/LINQPad"
 
 let releaseNotes = 
     ReadFile "ReleaseNotes.md"
@@ -31,7 +33,7 @@ let buildMode = getBuildParamOrDefault "buildMode" "Release"
 
 MSBuildDefaults <- { 
     MSBuildDefaults with 
-        ToolsVersion = Some "12.0"
+        ToolsVersion = Some "14.0"
         Verbosity = Some MSBuildVerbosity.Minimal }
 
 Target "Clean" (fun _ ->
@@ -39,7 +41,7 @@ Target "Clean" (fun _ ->
 )
 
 open Fake.AssemblyInfoFile
-open Fake.XUnit2Helper
+open Fake.Testing
 
 Target "AssemblyInfo" (fun _ ->
     CreateCSharpAssemblyInfo "./SolutionInfo.cs"
@@ -57,6 +59,23 @@ Target "CheckProjects" (fun _ ->
     |> Fake.MSBuild.ProjectSystem.CompareProjectsTo "./Octokit.Reactive/Octokit.Reactive.csproj"
 )
 
+let codeFormatter = @"tools\Octokit.CodeFormatter\tools\CodeFormatter.exe"
+
+Target "FormatCode" (fun _ ->
+    [   "Octokit"
+        "Octokit.Reactive"
+        "Octokit.Tests"
+        "Octokit.Tests.Conventions"
+        "Octokit.Tests.Integration"]
+    |> Seq.iter (fun pf ->
+        let project = pf + "/" + pf + ".csproj"
+        ExecProcess (fun info ->
+        info.FileName <- codeFormatter
+        info.Arguments <- project + " /nocopyright /nounicode") (TimeSpan.FromMinutes 1.0)
+            |> ignore
+    )
+)
+
 Target "FixProjects" (fun _ ->
     !! "./Octokit/Octokit*.csproj"
     |> Fake.MSBuild.ProjectSystem.FixProjectFiles "./Octokit/Octokit.csproj"
@@ -67,7 +86,7 @@ Target "FixProjects" (fun _ ->
 
 let setParams defaults = {
     defaults with
-        ToolsVersion = Some("12.0")
+        ToolsVersion = Some("14.0")
         Targets = ["Build"]
         Properties =
             [
@@ -75,23 +94,33 @@ let setParams defaults = {
             ]
     }
 
+let Exec command args =
+    let result = Shell.Exec(command, args)
+    if result <> 0 then failwithf "%s exited with error %d" command result
+
 Target "BuildApp" (fun _ ->
     build setParams "./Octokit.sln"
         |> DoNothing
 )
 
+Target "BuildMono" (fun _ ->
+    // xbuild does not support msbuild  tools version 14.0 and that is the reason
+    // for using the xbuild command directly instead of using msbuild
+    Exec "xbuild" "./Octokit-Mono.sln /t:Build /tv:12.0 /v:m  /p:RestorePackages='False' /p:Configuration='Release' /logger:Fake.MsBuildLogger+ErrorLogger,'../octokit.net/tools/FAKE.Core/tools/FakeLib.dll'"
+
+)
 Target "ConventionTests" (fun _ ->
     !! (sprintf "./Octokit.Tests.Conventions/bin/%s/**/Octokit.Tests.Conventions.dll" buildMode)
     |> xUnit2 (fun p -> 
             {p with
-                OutputDir = testResultsDir })
+                HtmlOutputPath = Some (testResultsDir @@ "xunit.html") })
 )
 
 Target "UnitTests" (fun _ ->
     !! (sprintf "./Octokit.Tests/bin/%s/**/Octokit.Tests*.dll" buildMode)
     |> xUnit2 (fun p -> 
             {p with
-                OutputDir = testResultsDir })
+                HtmlOutputPath = Some (testResultsDir @@ "xunit.html") })
 )
 
 Target "IntegrationTests" (fun _ ->
@@ -99,7 +128,7 @@ Target "IntegrationTests" (fun _ ->
         !! (sprintf "./Octokit.Tests.Integration/bin/%s/**/Octokit.Tests.Integration.dll" buildMode)
         |> xUnit2 (fun p -> 
                 {p with 
-                    OutputDir = testResultsDir
+                    HtmlOutputPath = Some (testResultsDir @@ "xunit.html")
                     TimeOut = TimeSpan.FromMinutes 10.0  })
     else
         "The integration tests were skipped because the OCTOKIT_GITHUBUSERNAME and OCTOKIT_GITHUBPASSWORD environment variables are not set. " +
@@ -119,11 +148,27 @@ Target "SourceLink" (fun _ ->
     )
 )
 
+Target "ValidateLINQPadSamples"(fun _ ->
+    "The current LINQPad snippets reference the latest release of Octokit on NuGet, which may be very far behind what is currently on master. " +
+    "These tests have been ported to SelfTests in the integration test suite. If someone would like to port them to F#, have a read of the details in https://github.com/octokit/octokit.net/issues/1081."
+    |> traceImportant 
+    //   directoryInfo(samplesDir @@ "linqpad-samples") 
+    //   |> filesInDir 
+    //   |> Array.map(fun f -> f.FullName)
+    //   |> Seq.iter (fun sample ->
+    //                  let result = ExecProcess (fun info ->
+    //                                                info.FileName <- linqPadDir @@ "lprun.exe"
+    //                                                info.Arguments <- " -compileonly " + sample) (TimeSpan.FromMinutes 5.0)
+    //                  if result <> 0 then failwithf "lprun.exe returned with a non-zero exit code for %s" sample
+    //  )
+)
+
 Target "CreateOctokitPackage" (fun _ ->
     let net45Dir = packagingDir @@ "lib/net45/"
-    let netcore45Dir = packagingDir @@ "lib/netcore45/"
+    let netcore45Dir = packagingDir @@ "lib/netcore451/"
     let portableDir = packagingDir @@ "lib/portable-net45+wp80+win+wpa81/"
-    CleanDirs [net45Dir; netcore45Dir; portableDir]
+    let linqpadSamplesDir = packagingDir @@ "linqpad-samples"
+    CleanDirs [net45Dir; netcore45Dir; portableDir;linqpadSamplesDir]
 
     CopyFile net45Dir (buildDir @@ "Release/Net45/Octokit.dll")
     CopyFile net45Dir (buildDir @@ "Release/Net45/Octokit.XML")
@@ -134,6 +179,7 @@ Target "CreateOctokitPackage" (fun _ ->
     CopyFile portableDir (buildDir @@ "Release/Portable/Octokit.dll")
     CopyFile portableDir (buildDir @@ "Release/Portable/Octokit.XML")
     CopyFile portableDir (buildDir @@ "Release/Portable/Octokit.pdb")
+    CopyDir packagingDir "./samples" allFiles
     CopyFiles packagingDir ["LICENSE.txt"; "README.md"; "ReleaseNotes.md"]
 
     NuGet (fun p -> 
@@ -152,7 +198,8 @@ Target "CreateOctokitPackage" (fun _ ->
 
 Target "CreateOctokitReactivePackage" (fun _ ->
     let net45Dir = reactivePackagingDir @@ "lib/net45/"
-    CleanDirs [net45Dir]
+    let linqpadSamplesDir = reactivePackagingDir @@ "linqpad-samples"
+    CleanDirs [net45Dir;linqpadSamplesDir]
 
     CopyFile net45Dir (reactiveBuildDir @@ "Release/Net45/Octokit.Reactive.dll")
     CopyFile net45Dir (reactiveBuildDir @@ "Release/Net45/Octokit.Reactive.XML")
@@ -180,10 +227,16 @@ Target "Default" DoNothing
 
 Target "CreatePackages" DoNothing
 
+
 "Clean"
    ==> "AssemblyInfo"
    ==> "CheckProjects"
    ==> "BuildApp"
+
+"Clean"
+   ==> "AssemblyInfo"
+   ==> "CheckProjects"
+   ==> "BuildMono"
 
 "UnitTests"
    ==> "Default"
@@ -196,11 +249,14 @@ Target "CreatePackages" DoNothing
 
 "SourceLink"
    ==> "CreatePackages"
+
 "CreateOctokitPackage"
    ==> "CreatePackages"
+
 "CreateOctokitReactivePackage"
    ==> "CreatePackages"
 
-
+"ValidateLINQPadSamples"
+   ==> "CreatePackages"
 
 RunTargetOrDefault "Default"

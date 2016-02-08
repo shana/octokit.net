@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to update an SSH key
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SshKeyUpdate
     {
@@ -21,7 +24,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Key: {0} Title: {1}", Key, Title);
+                return string.Format(CultureInfo.InvariantCulture, "Key: {0} Title: {1}", Key, Title);
             }
         }
     }

@@ -1,11 +1,8 @@
-﻿using NSubstitute;
-using Octokit;
-using Octokit.Tests.Helpers;
-using System;
-using System.Collections.Generic;
-using Xunit;
-using Xunit.Extensions;
+﻿using System;
 using System.Threading.Tasks;
+using NSubstitute;
+using Octokit;
+using Xunit;
 
 public class DeploymentStatusClientTests
 {
@@ -57,7 +54,7 @@ public class DeploymentStatusClientTests
 
     public class TheCreateMethod
     {
-        readonly NewDeploymentStatus newDeploymentStatus = new NewDeploymentStatus();
+        readonly NewDeploymentStatus newDeploymentStatus = new NewDeploymentStatus(DeploymentState.Success);
 
         [Fact]
         public async Task EnsuresNonNullArguments()
@@ -72,7 +69,7 @@ public class DeploymentStatusClientTests
         public async Task EnsuresNonEmptyArguments()
         {
             var client = new DeploymentStatusClient(Substitute.For<IApiConnection>());
-                
+
             await Assert.ThrowsAsync<ArgumentException>(() => client.GetAll("", "name", 1));
             await Assert.ThrowsAsync<ArgumentException>(() => client.GetAll("owner", "", 1));
         }
@@ -86,7 +83,7 @@ public class DeploymentStatusClientTests
         public async Task EnsureNonWhitespaceArguments(string whitespace)
         {
             var client = new DeploymentStatusClient(Substitute.For<IApiConnection>());
-                
+
             await Assert.ThrowsAsync<ArgumentException>(() => client.Create(whitespace, "repo", 1, newDeploymentStatus));
             await Assert.ThrowsAsync<ArgumentException>(() => client.Create("owner", whitespace, 1, newDeploymentStatus));
         }

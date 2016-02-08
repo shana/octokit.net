@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to create a Blob.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NewBlob
     {
@@ -21,7 +24,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Encoding: {0}", Encoding);
+                return string.Format(CultureInfo.InvariantCulture, "Encoding: {0}", Encoding);
             }
         }
     }

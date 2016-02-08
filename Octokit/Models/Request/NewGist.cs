@@ -5,6 +5,9 @@ using System.Globalization;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to create a new Gist.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NewGist
     {
@@ -22,7 +25,7 @@ namespace Octokit
         /// Indicates whether the gist is public
         /// </summary>
         public bool Public { get; set; }
-        
+
         /// <summary>
         /// Files that make up this gist using the key as Filename
         /// and value as Content
@@ -33,7 +36,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Description: {0}", Description);
+                return string.Format(CultureInfo.InvariantCulture, "Description: {0}", Description);
             }
         }
     }

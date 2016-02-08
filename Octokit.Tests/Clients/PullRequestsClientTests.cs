@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute;
-using Octokit.Tests.Helpers;
 using Xunit;
 
 namespace Octokit.Tests.Clients
@@ -19,8 +18,7 @@ namespace Octokit.Tests.Clients
 
                 client.Get("fake", "repo", 42);
 
-                connection.Received().Get<PullRequest>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/pulls/42"),
-                    null);
+                connection.Received().Get<PullRequest>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/pulls/42"));
             }
 
             [Fact]
@@ -55,7 +53,7 @@ namespace Octokit.Tests.Clients
                 var connection = Substitute.For<IApiConnection>();
                 var client = new PullRequestsClient(connection);
 
-                client.GetAllForRepository("fake", "repo", new PullRequestRequest { Head = "user:ref-head", Base = "fake_base_branch"});
+                client.GetAllForRepository("fake", "repo", new PullRequestRequest { Head = "user:ref-head", Base = "fake_base_branch" });
 
                 connection.Received().GetAll<PullRequest>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/pulls"),
                     Arg.Is<Dictionary<string, string>>(d => d.Count == 5
@@ -135,12 +133,12 @@ namespace Octokit.Tests.Clients
             }
         }
 
-        public class TheMergeMethod 
+        public class TheMergeMethod
         {
             [Fact]
             public void PutsToCorrectUrl()
             {
-                var mergePullRequest = new MergePullRequest { Message = "fake commit message" };
+                var mergePullRequest = new MergePullRequest { CommitMessage = "fake commit message" };
                 var connection = Substitute.For<IApiConnection>();
                 var client = new PullRequestsClient(connection);
 
@@ -157,15 +155,15 @@ namespace Octokit.Tests.Clients
                 var client = new PullRequestsClient(connection);
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() =>
-                    client.Merge(null, "name", 42, new MergePullRequest { Message = "message" }));
+                    client.Merge(null, "name", 42, new MergePullRequest { CommitMessage = "message" }));
                 await Assert.ThrowsAsync<ArgumentNullException>(() =>
-                    client.Merge("owner", null, 42, new MergePullRequest { Message = "message" }));
+                    client.Merge("owner", null, 42, new MergePullRequest { CommitMessage = "message" }));
                 await Assert.ThrowsAsync<ArgumentNullException>(() =>
                     client.Merge("owner", "name", 42, null));
             }
         }
 
-        public class TheMergedMethod 
+        public class TheMergedMethod
         {
             [Fact]
             public void RequestsCorrectUrl()
@@ -194,7 +192,7 @@ namespace Octokit.Tests.Clients
             }
         }
 
-        public class TheCommitsMethod 
+        public class TheCommitsMethod
         {
             [Fact]
             public async Task RequestsCorrectUrl()
@@ -203,7 +201,7 @@ namespace Octokit.Tests.Clients
                 var client = new PullRequestsClient(connection);
 
                 await client.Commits("fake", "repo", 42);
-				
+
                 connection.Received()
                     .GetAll<PullRequestCommit>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/pulls/42/commits"));
             }

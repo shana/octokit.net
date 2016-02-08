@@ -6,6 +6,9 @@ using Octokit.Internal;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to initiate an OAuth2 authentication flow from 3rd party web sites.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class OauthLoginRequest : RequestParameters
     {
@@ -61,7 +64,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "ClientId: {0}, RedirectUri: {1}, Scopes: {2}",
+                return string.Format(CultureInfo.InvariantCulture, "ClientId: {0}, RedirectUri: {1}, Scopes: {2}",
                     ClientId,
                     RedirectUri,
                     Scopes);

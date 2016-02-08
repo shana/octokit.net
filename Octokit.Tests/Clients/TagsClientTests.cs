@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute;
 using Octokit;
 using Octokit.Internal;
-using Octokit.Tests.Helpers;
 using Xunit;
 
 public class TagsClientTests
@@ -19,7 +17,7 @@ public class TagsClientTests
 
             client.Get("owner", "repo", "reference");
 
-            connection.Received().Get<GitTag>(Arg.Is<Uri>(u => u.ToString() == "repos/owner/repo/git/tags/reference"), null);
+            connection.Received().Get<GitTag>(Arg.Is<Uri>(u => u.ToString() == "repos/owner/repo/git/tags/reference"));
         }
 
         [Fact]
@@ -44,9 +42,9 @@ public class TagsClientTests
             var connection = Substitute.For<IApiConnection>();
             var client = new TagsClient(connection);
 
-            client.Create("owner", "repo", new NewTag{Type = TaggedType.Tree});
+            client.Create("owner", "repo", new NewTag { Type = TaggedType.Tree });
 
-            connection.Received().Post<GitTag>(Arg.Is<Uri>(u => u.ToString() == "repos/owner/repo/git/tags"), 
+            connection.Received().Post<GitTag>(Arg.Is<Uri>(u => u.ToString() == "repos/owner/repo/git/tags"),
                                             Arg.Is<NewTag>(nt => nt.Type == TaggedType.Tree));
         }
 
@@ -83,7 +81,7 @@ public class TagsClientTests
                 Tag = "tag-name",
                 Object = "tag-object",
                 Type = TaggedType.Tree,
-                Tagger = new SignatureResponse("tagger-name", "tagger-email", DateTimeOffset.Parse("2013-09-03T13:42:52Z"))
+                Tagger = new Committer("tagger-name", "tagger-email", DateTimeOffset.Parse("2013-09-03T13:42:52Z"))
             };
 
             var json = new SimpleJsonSerializer().Serialize(tag);
@@ -100,6 +98,6 @@ public class TagsClientTests
                                         "}";
 
             Assert.Equal(expectedResult, json);
-        } 
+        }
     }
 }

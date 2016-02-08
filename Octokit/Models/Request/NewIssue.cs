@@ -6,11 +6,15 @@ using System.Globalization;
 namespace Octokit
 {
     /// <summary>
-    /// Describes a new issue to create via the <see cref="IIssuesClient.Create(string,string,NewIssue)"/> method.
+    /// Describes a new issue to create via the <see cref="IIssuesClient.Create(string,string,NewIssue)" /> method.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NewIssue
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NewIssue"/> class.
+        /// </summary>
+        /// <param name="title">The title of the issue.</param>
         public NewIssue(string title)
         {
             Title = title;
@@ -21,7 +25,7 @@ namespace Octokit
         /// Title of the milestone (required)
         /// </summary>
         public string Title { get; private set; }
-        
+
         /// <summary>
         /// Details about the issue.
         /// </summary>
@@ -57,7 +61,7 @@ namespace Octokit
             get
             {
                 var labels = Labels ?? new Collection<string>();
-                return String.Format(CultureInfo.InvariantCulture, "Title: {0} Labels: {1}", Title, string.Join(",",labels));
+                return string.Format(CultureInfo.InvariantCulture, "Title: {0} Labels: {1}", Title, string.Join(",", labels));
             }
         }
     }

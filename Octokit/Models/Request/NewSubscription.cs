@@ -4,12 +4,24 @@ using System.Globalization;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to watch a repository (subscribe to repository's notifications). Called by the 
+    /// <see cref="IWatchedClient.WatchRepo"/> method.
+    /// </summary>
+    /// <remarks>
+    /// API: https://developer.github.com/v3/activity/watching/#set-a-repository-subscription
+    /// </remarks>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NewSubscription
     {
         /// <summary>
         /// Determines if notifications should be received from this repository.
         /// </summary>
+        /// <remarks>
+        /// If you would like to watch a repository, set subscribed to true. If you would like to ignore notifications
+        /// made within a repository, set ignored to true. If you would like to stop watching a repository, delete the 
+        /// repository’s subscription completely using the <see cref="IWatchedClient.UnwatchRepo"/> method.
+        /// </remarks>
         public bool Subscribed { get; set; }
 
         /// <summary>
@@ -21,7 +33,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Subscribed: {0} Ignored: {1}", Subscribed, Ignored);
+                return string.Format(CultureInfo.InvariantCulture, "Subscribed: {0} Ignored: {1}", Subscribed, Ignored);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using System;
 #if NET_45
 using System.Collections.Generic;
 #endif
@@ -26,10 +27,10 @@ namespace Octokit
         /// </exception>
         /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
         /// <returns>A list of <see cref="Authorization"/>s.</returns>
-        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", 
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate",
             Justification = "It's an API call, so it's not a property.")]
         Task<IReadOnlyList<Authorization>> GetAll();
-        
+
         /// <summary>
         /// Gets a specific <see cref="Authorization"/> for the authenticated user.
         /// </summary>
@@ -46,6 +47,43 @@ namespace Octokit
         [SuppressMessage("Microsoft.Naming", "CA1716:IdentifiersShouldNotMatchKeywords", MessageId = "Get",
             Justification = "It's fiiiine. It's fine. Trust us.")]
         Task<Authorization> Get(int id);
+
+        /// <summary>
+        /// Creates a new personal token for the authenticated user.
+        /// </summary>
+        /// <remarks>
+        /// This method requires authentication.
+        /// See the <a href="https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization">API documentation</a> for more information.
+        /// </remarks>
+        /// <param name="newAuthorization">Describes the new authorization to create</param>
+        /// <exception cref="AuthorizationException">
+        /// Thrown when the current user does not have permission to make this request.
+        /// </exception>
+        /// <exception cref="TwoFactorRequiredException">
+        /// Thrown when the current account has two-factor authentication enabled and an authentication code is required.
+        /// </exception>
+        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
+        /// <returns>The created <see cref="Authorization"/>.</returns>
+        Task<ApplicationAuthorization> Create(NewAuthorization newAuthorization);
+
+        /// <summary>
+        /// Creates a new personal token for the authenticated user.
+        /// </summary>
+        /// <remarks>
+        /// This method requires authentication.
+        /// See the <a href="https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization">API documentation</a> for more information.
+        /// </remarks>
+        /// <param name="twoFactorAuthenticationCode">The two-factor authentication code in response to the current user's previous challenge</param>
+        /// <param name="newAuthorization">Describes the new authorization to create</param>
+        /// <exception cref="AuthorizationException">
+        /// Thrown when the current user does not have permission to make this request.
+        /// </exception>
+        /// <exception cref="TwoFactorRequiredException">
+        /// Thrown when the current account has two-factor authentication enabled and an authentication code is required.
+        /// </exception>
+        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
+        /// <returns>The created <see cref="Authorization"/>.</returns>
+        Task<ApplicationAuthorization> Create(NewAuthorization newAuthorization, string twoFactorAuthenticationCode);
 
         /// <summary>
         /// Creates a new authorization for the specified OAuth application if an authorization for that application
@@ -96,7 +134,7 @@ namespace Octokit
             string clientSecret,
             NewAuthorization newAuthorization,
             string twoFactorAuthenticationCode);
-        
+
         /// <summary>
         /// Creates a new authorization for the specified OAuth application if an authorization for that application doesn’t already 
         /// exist for the user; otherwise, returns the user’s existing authorization for that application.
@@ -120,7 +158,7 @@ namespace Octokit
             string clientId,
             string clientSecret,
             NewAuthorization newAuthorization);
-        
+
         /// <summary>
         /// Creates a new authorization for the specified OAuth application if an authorization for that application doesn’t already 
         /// exist for the user; otherwise, returns the user’s existing authorization for that application.
@@ -192,6 +230,7 @@ namespace Octokit
         /// </remarks>
         /// <param name="clientId">ClientID of the OAuth application for the token</param>
         /// <returns>A <see cref="Task"/> for the request's execution.</returns>
+        [Obsolete("This feature is no longer supported in the GitHub API and will be removed in a future release")]
         Task RevokeAllApplicationAuthentications(string clientId);
 
         /// <summary>

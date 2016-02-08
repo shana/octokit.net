@@ -16,11 +16,21 @@ namespace Octokit
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SearchCodeRequest : BaseSearchRequest
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SearchCodeRequest"/> class.
+        /// </summary>
+        /// <param name="term">The search term.</param>
         public SearchCodeRequest(string term) : base(term)
         {
             Repos = new RepositoryCollection();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SearchCodeRequest"/> class.
+        /// </summary>
+        /// <param name="term">The term.</param>
+        /// <param name="owner">The owner.</param>
+        /// <param name="name">The name.</param>
         public SearchCodeRequest(string term, string owner, string name)
             : this(term)
         {
@@ -138,45 +148,45 @@ namespace Octokit
 
             if (In != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "in:{0}",
-                    String.Join(",", In.Select(i => i.ToParameter()))));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "in:{0}",
+                    string.Join(",", In.Select(i => i.ToParameter()))));
             }
 
             if (Language != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "language:{0}", Language.ToParameter()));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "language:{0}", Language.ToParameter()));
             }
 
             if (Forks != null)
             {
                 // API is expecting 'true', bool.ToString() returns 'True', if there is a better way,
                 // please, oh please let me know...
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "fork:{0}", Forks.Value.ToString().ToLower()));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "fork:{0}", Forks.Value.ToString().ToLower()));
             }
 
             if (Size != null)
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "size:{0}", Size));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "size:{0}", Size));
             }
 
             if (Path.IsNotBlank())
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "path:{0}", Path));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "path:{0}", Path));
             }
 
             if (Extension.IsNotBlank())
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "extension:{0}", Extension));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "extension:{0}", Extension));
             }
 
             if (FileName.IsNotBlank())
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "filename:{0}", FileName));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "filename:{0}", FileName));
             }
 
             if (User.IsNotBlank())
             {
-                parameters.Add(String.Format(CultureInfo.InvariantCulture, "user:{0}", User));
+                parameters.Add(string.Format(CultureInfo.InvariantCulture, "user:{0}", User));
             }
 
             if (Repos.Any())
@@ -198,7 +208,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Term: {0} Sort: {1}", Term, Sort);
+                return string.Format(CultureInfo.InvariantCulture, "Term: {0} Sort: {1}", Term, Sort);
             }
         }
     }

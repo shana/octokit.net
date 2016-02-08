@@ -4,9 +4,15 @@ using System.Globalization;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to filter pull request review comments.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class PullRequestReviewCommentRequest : RequestParameters
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PullRequestReviewCommentRequest"/> class.
+        /// </summary>
         public PullRequestReviewCommentRequest()
         {
             // Default arguments
@@ -32,7 +38,7 @@ namespace Octokit
 
         internal string DebuggerDisplay
         {
-            get { return String.Format(CultureInfo.InvariantCulture, "Sort: {0}, Direction: {1}, Since: {2}", Sort, Direction, Since); }
+            get { return string.Format(CultureInfo.InvariantCulture, "Sort: {0}, Direction: {1}, Since: {2}", Sort, Direction, Since); }
         }
     }
 }

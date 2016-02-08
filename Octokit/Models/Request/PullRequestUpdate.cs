@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace Octokit
 {
+    /// <summary>
+    /// Used to update an existing pull request.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class PullRequestUpdate
     {
@@ -26,7 +29,7 @@ namespace Octokit
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, "Title: {0}", Title);
+                return string.Format(CultureInfo.InvariantCulture, "Title: {0}", Title);
             }
         }
     }
