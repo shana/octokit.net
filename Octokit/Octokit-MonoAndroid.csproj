@@ -442,8 +442,29 @@
     <Compile Include="Models\Response\Enterprise\AdminStatsPulls.cs" />
     <Compile Include="Models\Response\Enterprise\AdminStatsRepos.cs" />
     <Compile Include="Models\Response\Enterprise\AdminStatsUsers.cs" />
+    <Compile Include="Clients\Enterprise\EnterpriseLicenseClient.cs" />
+    <Compile Include="Clients\Enterprise\IEnterpriseLicenseClient.cs" />
+    <Compile Include="Models\Response\Enterprise\LicenseInfo.cs" />
+    <Compile Include="Clients\Enterprise\EnterpriseOrganizationClient.cs" />
+    <Compile Include="Clients\Enterprise\IEnterpriseOrganizationClient.cs" />
+    <Compile Include="Models\Request\NewOrganization.cs" />
     <Compile Include="Clients\IUserAdministrationClient.cs" />
     <Compile Include="Clients\UserAdministrationClient.cs" />
+    <Compile Include="Helpers\ReferenceExtensions.cs" />
+    <Compile Include="Clients\Enterprise\EnterpriseSearchIndexingClient.cs" />
+    <Compile Include="Clients\Enterprise\IEnterpriseSearchIndexingClient.cs" />
+    <Compile Include="Models\Request\Enterprise\NewOrganization.cs" />
+    <Compile Include="Models\Request\Enterprise\SearchIndexingTarget.cs" />
+    <Compile Include="Models\Response\Enterprise\SearchIndexingResponse.cs" />
+    <Compile Include="Clients\Enterprise\EnterpriseLdapClient.cs" />
+    <Compile Include="Clients\Enterprise\IEnterpriseLdapClient.cs" />
+    <Compile Include="Models\Request\Enterprise\NewLdapMapping.cs" />
+    <Compile Include="Models\Response\Enterprise\LdapSyncResponse.cs" />
+    <Compile Include="Models\Request\NewImpersonationToken.cs" />
+    <Compile Include="Models\Request\NewUser.cs" />
+    <Compile Include="Models\Request\UserRename.cs" />
+    <Compile Include="Models\Response\UserRenameResponse.cs" />
+    <Compile Include="Models\Request\NewPublicKey.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
 </Project>

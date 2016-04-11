@@ -133,7 +133,7 @@ namespace Octokit
             BaseAddress = baseAddress;
             _authenticator = new Authenticator(credentialStore);
             _httpClient = httpClient;
-            _jsonPipeline = new JsonHttpPipeline();
+            _jsonPipeline = new JsonHttpPipeline(serializer);
         }
 
         /// <summary>
@@ -235,6 +235,13 @@ namespace Octokit
 
             var response = await SendData<object>(uri, HttpMethod.Post, null, null, null, CancellationToken.None);
             return response.HttpResponse.StatusCode;
+        }
+
+        public Task<IApiResponse<T>> Post<T>(Uri uri)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            return SendData<T>(uri, HttpMethod.Post, null, null, null, CancellationToken.None);
         }
 
         public Task<IApiResponse<T>> Post<T>(Uri uri, object body, string accepts, string contentType)
