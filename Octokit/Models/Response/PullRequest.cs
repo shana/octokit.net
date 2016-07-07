@@ -14,7 +14,7 @@ namespace Octokit
             Number = number;
         }
 
-        public PullRequest(Uri url, Uri htmlUrl, Uri diffUrl, Uri patchUrl, Uri issueUrl, Uri statusesUrl, int number, ItemState state, string title, string body, DateTimeOffset createdAt, DateTimeOffset updatedAt, DateTimeOffset? closedAt, DateTimeOffset? mergedAt, GitReference head, GitReference @base, User user, User assignee, bool? mergeable, User mergedBy, int comments, int commits, int additions, int deletions, int changedFiles, Milestone milestone, bool locked)
+        public PullRequest(Uri url, Uri htmlUrl, Uri diffUrl, Uri patchUrl, Uri issueUrl, Uri statusesUrl, int number, ItemState state, string title, string body, DateTimeOffset createdAt, DateTimeOffset updatedAt, DateTimeOffset? closedAt, DateTimeOffset? mergedAt, GitReference head, GitReference @base, User user, User assignee, bool? mergeable, User mergedBy, int comments, int reviewComments, int commits, int additions, int deletions, int changedFiles, Milestone milestone, bool locked)
         {
             Url = url;
             HtmlUrl = htmlUrl;
@@ -37,6 +37,7 @@ namespace Octokit
             Mergeable = mergeable;
             MergedBy = mergedBy;
             Comments = comments;
+            ReviewComments = reviewComments;
             Commits = commits;
             Additions = additions;
             Deletions = deletions;
@@ -162,6 +163,11 @@ namespace Octokit
         /// Total number of comments contained in the pull request.
         /// </summary>
         public int Comments { get; protected set; }
+
+        /// <summary>
+        /// Total number of review comments contained in the pull request.
+        /// </summary>
+        public int ReviewComments { get; protected set; }
 
         /// <summary>
         /// Total number of commits contained in the pull request.
