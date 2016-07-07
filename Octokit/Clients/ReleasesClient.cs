@@ -34,10 +34,30 @@ namespace Octokit
         public Task<IReadOnlyList<Release>> GetAll(string owner, string name)
         {
             Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
-            Ensure.ArgumentNotNullOrEmptyString(name, "repository");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+
+            return GetAll(owner, name, ApiOptions.None);
+        }
+
+        /// <summary>
+        /// Gets all <see cref="Release"/>s for the specified repository.
+        /// </summary>
+        /// <remarks>
+        /// See the <a href="http://developer.github.com/v3/repos/releases/#list-releases-for-a-repository">API documentation</a> for more information.
+        /// </remarks>
+        /// <param name="owner">The repository's owner</param>
+        /// <param name="name">The repository's name</param>
+        /// <param name="options">Options for changing the API response</param>
+        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
+        /// <returns>The list of <see cref="Release"/>s for the specified repository.</returns>
+        public Task<IReadOnlyList<Release>> GetAll(string owner, string name, ApiOptions options)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(options, "options");
 
             var endpoint = ApiUrls.Releases(owner, name);
-            return ApiConnection.GetAll<Release>(endpoint, null, AcceptHeaders.StableVersion);
+            return ApiConnection.GetAll<Release>(endpoint, null, AcceptHeaders.StableVersion, options);
         }
 
         /// <summary>
@@ -93,7 +113,7 @@ namespace Octokit
         public Task<Release> Create(string owner, string name, NewRelease data)
         {
             Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
-            Ensure.ArgumentNotNullOrEmptyString(name, "repository");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
             Ensure.ArgumentNotNull(data, "data");
 
             var endpoint = ApiUrls.Releases(owner, name);
@@ -158,8 +178,29 @@ namespace Octokit
             Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
             Ensure.ArgumentNotNullOrEmptyString(name, "name");
 
+            return GetAllAssets(owner, name, id, ApiOptions.None);
+        }
+
+        /// <summary>
+        /// Gets all <see cref="ReleaseAsset"/> for the specified release of the specified repository.
+        /// </summary>
+        /// <remarks>
+        /// See the <a href="http://developer.github.com/v3/repos/releases/#list-assets-for-a-release">API documentation</a> for more information.
+        /// </remarks>
+        /// <param name="owner">The repository's owner</param>
+        /// <param name="name">The repository's name</param>
+        /// <param name="id">The id of the <see cref="Release"/>.</param>
+        /// <param name="options">Options for changing the API response</param>
+        /// <exception cref="ApiException">Thrown when a general API error occurs.</exception>
+        /// <returns>The list of <see cref="ReleaseAsset"/> for the specified release of the specified repository.</returns>
+        public Task<IReadOnlyList<ReleaseAsset>> GetAllAssets(string owner, string name, int id, ApiOptions options)
+        {
+            Ensure.ArgumentNotNullOrEmptyString(owner, "owner");
+            Ensure.ArgumentNotNullOrEmptyString(name, "name");
+            Ensure.ArgumentNotNull(options, "options");
+
             var endpoint = ApiUrls.ReleaseAssets(owner, name, id);
-            return ApiConnection.GetAll<ReleaseAsset>(endpoint, null, AcceptHeaders.StableVersion);
+            return ApiConnection.GetAll<ReleaseAsset>(endpoint, null, AcceptHeaders.StableVersion, options);
         }
 
         /// <summary>

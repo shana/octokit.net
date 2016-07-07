@@ -95,30 +95,9 @@ namespace Octokit.Tests.Conventions
             }
         }
 
-        //TODO: This should (probably) be moved to the PaginationTests class that is being introduced in PR #760
-        [Theory]
-        [MemberData("GetClientInterfaces")]
-        public void CheckPaginationGetAllMethodNames(Type clientInterface)
-        {
-            var methodsOrdered = clientInterface.GetMethodsOrdered();
-
-            var methodsThatCanPaginate = methodsOrdered
-                .Where(x => x.ReturnType.GetTypeInfo().TypeCategory == TypeCategory.ReadOnlyList)
-                .Where(x => x.Name.StartsWith("Get"));
-
-            var invalidMethods = methodsThatCanPaginate
-                .Where(x => !x.Name.StartsWith("GetAll"))
-                .ToList();
-
-            if (invalidMethods.Any())
-            {
-                throw new PaginationGetAllMethodNameMismatchException(clientInterface, invalidMethods);
-            }
-        }
-
         public static IEnumerable<object[]> GetClientInterfaces()
         {
-            return typeof(IEventsClient)
+            return typeof(IGitHubClient)
                 .Assembly
                 .ExportedTypes
                 .Where(TypeExtensions.IsClientInterface)
@@ -140,7 +119,7 @@ namespace Octokit.Tests.Conventions
         {
             var allModelTypes = new HashSet<Type>();
 
-            var clientInterfaces = typeof(IEventsClient).Assembly.ExportedTypes
+            var clientInterfaces = typeof(IGitHubClient).Assembly.ExportedTypes
                 .Where(type => type.IsClientInterface());
 
             foreach (var exportedType in clientInterfaces)

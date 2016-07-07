@@ -9,10 +9,10 @@ namespace Octokit.Tests.Reactive
 {
     public class ObservableReleasesClientTests
     {
-        public class TheCtorMethod
+        public class TheCtor
         {
             [Fact]
-            public void EnsuresArgumentIsNotNull()
+            public void EnsuresNonNullArguments()
             {
                 Assert.Throws<ArgumentNullException>(() => new ObservableReleasesClient(null));
             }
@@ -29,7 +29,7 @@ namespace Octokit.Tests.Reactive
                 client.GetAll("fake", "repo");
 
                 gitHubClient.Connection.Received(1).Get<List<Release>>(
-                    new Uri("repos/fake/repo/releases", UriKind.Relative), null, null);
+                    new Uri("repos/fake/repo/releases", UriKind.Relative), Args.EmptyDictionary, null);
             }
 
             [Fact]
@@ -181,7 +181,30 @@ namespace Octokit.Tests.Reactive
                 client.GetAllAssets("fake", "repo", 1);
 
                 gitHubClient.Connection.Received(1).Get<List<ReleaseAsset>>(
-                    new Uri("repos/fake/repo/releases/1/assets", UriKind.Relative), null, null);
+                    new Uri("repos/fake/repo/releases/1/assets", UriKind.Relative), Args.EmptyDictionary, null);
+            }
+
+            [Fact]
+            public void RequestsTheCorrectUrlWithApiOptions()
+            {
+                var expectedUrl = string.Format("repos/{0}/{1}/releases/1/assets", "fake", "repo");
+
+                var gitHubClient = Substitute.For<IGitHubClient>();
+                var client = new ObservableReleasesClient(gitHubClient);
+
+                var options = new ApiOptions
+                {
+                    StartPage = 1,
+                    PageCount = 1,
+                    PageSize = 1
+                };
+
+                client.GetAllAssets("fake", "repo", 1, options);
+                
+                gitHubClient.Connection.Received(1).Get<List<ReleaseAsset>>(
+                    Arg.Is<Uri>(u => u.ToString() == expectedUrl), 
+                    Arg.Is<IDictionary<string, string>>(dictionary => dictionary.Count == 2), 
+                    null);
             }
 
             [Fact]
@@ -189,9 +212,14 @@ namespace Octokit.Tests.Reactive
             {
                 var client = new ObservableReleasesClient(Substitute.For<IGitHubClient>());
 
-                Assert.Throws<ArgumentNullException>(() => client.GetAllAssets(null, "name", 1));
-                Assert.Throws<ArgumentException>(() => client.GetAllAssets("", "name", 1));
                 Assert.Throws<ArgumentNullException>(() => client.GetAllAssets("owner", null, 1));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllAssets(null, "name", 1));
+
+                Assert.Throws<ArgumentNullException>(() => client.GetAllAssets(null, "name", 1, ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllAssets("owner", null, 1, ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllAssets("owner", "name", 1, null));
+
+                Assert.Throws<ArgumentException>(() => client.GetAllAssets("", "name", 1));
                 Assert.Throws<ArgumentException>(() => client.GetAllAssets("owner", "", 1));
             }
         }

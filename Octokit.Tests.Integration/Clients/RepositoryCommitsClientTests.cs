@@ -21,6 +21,13 @@ public class RepositoryCommitsClientTests
         }
 
         [IntegrationTest]
+        public async Task CanGetMergeBaseCommit()
+        {
+            var compareResult = await _fixture.Compare("octokit", "octokit.net", "65a22f4d2cff94a286ac3e96440c810c5509196f", "65a22f4d2cff94a286ac3e96440c810c5509196f");
+            Assert.NotNull(compareResult.MergeBaseCommit);
+        }
+
+        [IntegrationTest]
         public async Task CanGetCommit()
         {
             var commit = await _fixture.Get("octokit", "octokit.net", "65a22f4d2cff94a286ac3e96440c810c5509196f");
@@ -40,6 +47,59 @@ public class RepositoryCommitsClientTests
         {
             var list = await _fixture.GetAll("shiftkey", "ReactiveGit");
             Assert.NotEmpty(list);
+        }
+
+        [IntegrationTest]
+        public async Task CanGetCorrectCountOfCommitsWithoutStart()
+        {
+            var options = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1
+            };
+
+            var commits = await _fixture.GetAll("shiftkey", "ReactiveGit", options);
+            Assert.Equal(5, commits.Count);
+        }
+
+        [IntegrationTest]
+        public async Task CanGetCorrectCountOfCommitsWithStart()
+        {
+            var options = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1,
+                StartPage = 2
+            };
+
+            var commits = await _fixture.GetAll("shiftkey", "ReactiveGit", options);
+            Assert.Equal(5, commits.Count);
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsDistinctResultsBasedOnStart()
+        {
+            var startOptions = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1
+            };
+
+            var skipStartOptions = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1,
+                StartPage = 2
+            };
+
+            var firstCommit = await _fixture.GetAll("shiftkey", "ReactiveGit", startOptions);
+            var secondCommit = await _fixture.GetAll("shiftkey", "ReactiveGit", skipStartOptions);
+
+            Assert.NotEqual(firstCommit[0].Sha, secondCommit[0].Sha);
+            Assert.NotEqual(firstCommit[1].Sha, secondCommit[1].Sha);
+            Assert.NotEqual(firstCommit[2].Sha, secondCommit[2].Sha);
+            Assert.NotEqual(firstCommit[3].Sha, secondCommit[3].Sha);
+            Assert.NotEqual(firstCommit[4].Sha, secondCommit[4].Sha);
         }
 
         [IntegrationTest]
@@ -86,6 +146,14 @@ public class RepositoryCommitsClientTests
             Assert.True(commit.Files
                 .Where(file => file.Status == "renamed")
                 .All(file => string.IsNullOrEmpty(file.PreviousFileName) == false));
+        }
+
+        [IntegrationTest]
+        public async Task CanGetSha1()
+        {
+            var sha1 = await _fixture.GetSha1("octokit", "octokit.net", "master");
+
+            Assert.NotNull(sha1);
         }
     }
 
@@ -158,7 +226,17 @@ public class RepositoryCommitsClientTests
             Assert.Equal(0, result.BehindBy);
         }
 
-        async Task CreateTheWorld()
+        [IntegrationTest]
+        public async Task GetSha1FromRepository()
+        {
+            var reference = await CreateTheWorld();
+
+            var sha1 = await _fixture.GetSha1(Helper.UserName, _context.RepositoryName, "my-branch");
+
+            Assert.Equal(reference.Object.Sha, sha1);
+        }
+
+        async Task<Reference> CreateTheWorld()
         {
             var master = await _github.Git.Reference.Get(Helper.UserName, _context.RepositoryName, "heads/master");
 
@@ -174,7 +252,7 @@ public class RepositoryCommitsClientTests
             var newFeature = await CreateCommit("this is the commit to merge into the pull request", featureBranchTree.Sha, newMaster.Sha);
 
             // create branch
-            await _github.Git.Reference.Create(Helper.UserName, _context.RepositoryName, new NewReference("refs/heads/my-branch", newFeature.Sha));
+            return await _github.Git.Reference.Create(Helper.UserName, _context.RepositoryName, new NewReference("refs/heads/my-branch", newFeature.Sha));
         }
 
         async Task<TreeResponse> CreateTree(IDictionary<string, string> treeContents)

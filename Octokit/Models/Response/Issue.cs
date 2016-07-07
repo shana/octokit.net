@@ -10,7 +10,7 @@ namespace Octokit
     {
         public Issue() { }
 
-        public Issue(Uri url, Uri htmlUrl, Uri commentsUrl, Uri eventsUrl, int number, ItemState state, string title, string body, User user, IReadOnlyList<Label> labels, User assignee, Milestone milestone, int comments, PullRequest pullRequest, DateTimeOffset? closedAt, DateTimeOffset createdAt, DateTimeOffset? updatedAt, int id, bool locked)
+        public Issue(Uri url, Uri htmlUrl, Uri commentsUrl, Uri eventsUrl, int number, ItemState state, string title, string body, User closedBy, User user, IReadOnlyList<Label> labels, User assignee, Milestone milestone, int comments, PullRequest pullRequest, DateTimeOffset? closedAt, DateTimeOffset createdAt, DateTimeOffset? updatedAt, int id, bool locked, Repository repository)
         {
             Id = id;
             Url = url;
@@ -21,6 +21,7 @@ namespace Octokit
             State = state;
             Title = title;
             Body = body;
+            ClosedBy = closedBy;
             User = user;
             Labels = labels;
             Assignee = assignee;
@@ -31,6 +32,7 @@ namespace Octokit
             CreatedAt = createdAt;
             UpdatedAt = updatedAt;
             Locked = locked;
+            Repository = repository;
         }
 
         /// <summary>
@@ -79,6 +81,11 @@ namespace Octokit
         public string Body { get; protected set; }
 
         /// <summary>
+        /// Details about the user who has closed this issue.
+        /// </summary>
+        public User ClosedBy { get; protected set; }
+
+        /// <summary>
         /// The user that created the issue.
         /// </summary>
         public User User { get; protected set; }
@@ -121,9 +128,14 @@ namespace Octokit
         public DateTimeOffset? UpdatedAt { get; protected set; }
 
         /// <summary>
-        /// If the issue is locked or not
+        /// If the issue is locked or not.
         /// </summary>
         public bool Locked { get; protected set; }
+
+        /// <summary>
+        /// The repository the issue comes from.
+        /// </summary>
+        public Repository Repository { get; protected set; }
 
         internal string DebuggerDisplay
         {

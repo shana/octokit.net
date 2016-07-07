@@ -115,7 +115,20 @@ namespace Octokit
         /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
         public Task<IReadOnlyList<T>> GetAll<T>(Uri uri)
         {
-            return GetAll<T>(uri, null, null);
+            return GetAll<T>(uri, ApiOptions.None);
+        }
+
+        /// <summary>
+        /// Gets all API resources in the list at the specified URI.
+        /// </summary>
+        /// <typeparam name="T">Type of the API resource in the list.</typeparam>
+        /// <param name="uri">URI of the API resource to get</param>
+        /// <param name="options">Options for changing the API response</param>
+        /// <returns><see cref="IReadOnlyList{T}"/> of the The API resources in the list.</returns>
+        /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
+        public Task<IReadOnlyList<T>> GetAll<T>(Uri uri, ApiOptions options)
+        {
+            return GetAll<T>(uri, null, null, options);
         }
 
         /// <summary>
@@ -128,7 +141,21 @@ namespace Octokit
         /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
         public Task<IReadOnlyList<T>> GetAll<T>(Uri uri, IDictionary<string, string> parameters)
         {
-            return GetAll<T>(uri, parameters, null);
+            return GetAll<T>(uri, parameters, null, ApiOptions.None);
+        }
+
+        /// <summary>
+        /// Gets all API resources in the list at the specified URI.
+        /// </summary>
+        /// <typeparam name="T">Type of the API resource in the list.</typeparam>
+        /// <param name="uri">URI of the API resource to get</param>
+        /// <param name="parameters">Parameters to add to the API request</param>
+        /// <param name="options">Options for changing the API response</param>
+        /// <returns><see cref="IReadOnlyList{T}"/> of the The API resources in the list.</returns>
+        /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
+        public Task<IReadOnlyList<T>> GetAll<T>(Uri uri, IDictionary<string, string> parameters, ApiOptions options)
+        {
+            return GetAll<T>(uri, parameters, null, options);
         }
 
         /// <summary>
@@ -144,8 +171,17 @@ namespace Octokit
         {
             Ensure.ArgumentNotNull(uri, "uri");
 
-            return _pagination.GetAllPages(async () => await GetPage<T>(uri, parameters, accepts)
-                                                                 .ConfigureAwait(false), uri);
+            return _pagination.GetAllPages(async () => await GetPage<T>(uri, parameters, accepts).ConfigureAwait(false), uri);
+        }
+
+        public Task<IReadOnlyList<T>> GetAll<T>(Uri uri, IDictionary<string, string> parameters, string accepts, ApiOptions options)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+            Ensure.ArgumentNotNull(options, "options");
+
+            parameters = Pagination.Setup(parameters, options);
+
+            return _pagination.GetAllPages(async () => await GetPage<T>(uri, parameters, accepts, options).ConfigureAwait(false), uri);
         }
 
         /// <summary>
@@ -221,11 +257,7 @@ namespace Octokit
             Ensure.ArgumentNotNull(uri, "uri");
             Ensure.ArgumentNotNull(data, "data");
 
-            var response = await Connection.Post<T>(
-                uri,
-                data,
-                accepts,
-                contentType).ConfigureAwait(false);
+            var response = await Connection.Post<T>(uri, data, accepts, contentType).ConfigureAwait(false);
             return response.Body;
         }
 
@@ -246,12 +278,7 @@ namespace Octokit
             Ensure.ArgumentNotNull(data, "data");
             Ensure.ArgumentNotNull(twoFactorAuthenticationCode, "twoFactorAuthenticationCode");
 
-            var response = await Connection.Post<T>(
-                uri,
-                data,
-                accepts,
-                contentType,
-                twoFactorAuthenticationCode).ConfigureAwait(false);
+            var response = await Connection.Post<T>(uri, data, accepts, contentType, twoFactorAuthenticationCode).ConfigureAwait(false);
             return response.Body;
         }
 
@@ -261,12 +288,7 @@ namespace Octokit
             Ensure.ArgumentNotNull(uri, "uri");
             Ensure.ArgumentNotNull(data, "data");
 
-            var response = await Connection.Post<T>(
-                uri,
-                data,
-                accepts,
-                contentType,
-                timeout).ConfigureAwait(false);
+            var response = await Connection.Post<T>(uri, data, accepts, contentType, timeout).ConfigureAwait(false);
             return response.Body;
         }
 
@@ -357,7 +379,7 @@ namespace Octokit
         /// </summary>
         /// <typeparam name="T">The API resource's type.</typeparam>
         /// <param name="uri">URI of the API resource to update</param>
-        /// /// <param name="data">Object that describes the API resource; this will be serialized and used as the request's body</param>
+        /// <param name="data">Object that describes the API resource; this will be serialized and used as the request's body</param>
         /// <returns>The updated API resource.</returns>
         /// <exception cref="ApiException">Thrown when an API error occurs.</exception>
         public async Task<T> Patch<T>(Uri uri, object data)
@@ -430,6 +452,21 @@ namespace Octokit
         }
 
         /// <summary>
+        /// Performs an asynchronous HTTP DELETE request that expects an empty response.
+        /// </summary>
+        /// <param name="uri">URI endpoint to send request to</param>
+        /// <param name="data">The object to serialize as the body of the request</param>
+        /// <param name="accepts">Specifies accept response media type</param>
+        /// <returns>The returned <seealso cref="HttpStatusCode"/></returns>
+        public Task Delete(Uri uri, object data, string accepts)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+            Ensure.ArgumentNotNull(data, "data");
+            Ensure.ArgumentNotNull(accepts, "accepts");
+            
+            return Connection.Delete(uri, data, accepts);
+        }
+        /// <summary>
         /// Executes a GET to the API object at the specified URI. This operation is appropriate for
         /// API calls which wants to return the redirect URL.
         /// It expects the API to respond with a 302 Found.
@@ -441,7 +478,7 @@ namespace Octokit
         public async Task<string> GetRedirect(Uri uri)
         {
             Ensure.ArgumentNotNull(uri, "uri");
-            var response = await Connection.GetRedirect<string>(uri);
+            var response = await Connection.GetRedirect<string>(uri).ConfigureAwait(false);
 
             if (response.HttpResponse.StatusCode == HttpStatusCode.Redirect)
             {
@@ -469,7 +506,7 @@ namespace Octokit
             {
                 Ensure.ArgumentNotNull(uri, "uri");
 
-                var response = await Connection.GetResponse<IReadOnlyList<T>>(uri, cancellationToken);
+                var response = await Connection.GetResponse<IReadOnlyList<T>>(uri, cancellationToken).ConfigureAwait(false);
 
                 switch (response.HttpResponse.StatusCode)
                 {
@@ -497,6 +534,31 @@ namespace Octokit
             return new ReadOnlyPagedCollection<T>(
                 response,
                 nextPageUri => Connection.Get<List<T>>(nextPageUri, parameters, accepts));
+        }
+
+        async Task<IReadOnlyPagedCollection<TU>> GetPage<TU>(
+            Uri uri,
+            IDictionary<string, string> parameters,
+            string accepts,
+            ApiOptions options)
+        {
+            Ensure.ArgumentNotNull(uri, "uri");
+
+            var connection = Connection;
+
+            var response = await connection.Get<List<TU>>(uri, parameters, accepts).ConfigureAwait(false);
+            return new ReadOnlyPagedCollection<TU>(
+                response,
+                nextPageUri =>
+                {
+                    var shouldContinue = Pagination.ShouldContinue(
+                        nextPageUri,
+                        options);
+
+                    return shouldContinue
+                        ? connection.Get<List<TU>>(nextPageUri, parameters, accepts)
+                        : null;
+                });
         }
     }
 }

@@ -11,6 +11,16 @@ namespace Octokit.Tests.Reactive
 {
     public class ObservableRepositoriesClientTests
     {
+        public class TheCtor
+        {
+            [Fact]
+            public void EnsuresNonNullArguments()
+            {
+                Assert.Throws<ArgumentNullException>(
+                    () => new ObservableRepositoriesClient(null));
+            }
+        }
+
         public class TheGetMethod
         {
             // This isn't really a test specific to this method. This is just as good a place as any to test
@@ -73,21 +83,22 @@ namespace Octokit.Tests.Reactive
                     {
                         new Repository(7)
                     });
+
                 var gitHubClient = Substitute.For<IGitHubClient>();
-                gitHubClient.Connection.GetResponse<List<Repository>>(firstPageUrl)
+                gitHubClient.Connection.Get<List<Repository>>(firstPageUrl, Arg.Any<IDictionary<string,string>>(), null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<Repository>>>(() => firstPageResponse));
-                gitHubClient.Connection.GetResponse<List<Repository>>(secondPageUrl)
+                gitHubClient.Connection.Get<List<Repository>>(secondPageUrl, Arg.Any<IDictionary<string, string>>(), null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<Repository>>>(() => secondPageResponse));
-                gitHubClient.Connection.GetResponse<List<Repository>>(thirdPageUrl)
+                gitHubClient.Connection.Get<List<Repository>>(thirdPageUrl, Arg.Any<IDictionary<string, string>>(), null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<Repository>>>(() => lastPageResponse));
                 var repositoriesClient = new ObservableRepositoriesClient(gitHubClient);
 
                 var results = await repositoriesClient.GetAllForCurrent().ToArray();
 
                 Assert.Equal(7, results.Length);
-                gitHubClient.Connection.Received(1).Get<List<Repository>>(firstPageUrl, null, null);
-                gitHubClient.Connection.Received(1).Get<List<Repository>>(secondPageUrl, null, null);
-                gitHubClient.Connection.Received(1).Get<List<Repository>>(thirdPageUrl, null, null);
+                gitHubClient.Connection.Received(1).Get<List<Repository>>(firstPageUrl, Arg.Any<IDictionary<string, string>>(), null);
+                gitHubClient.Connection.Received(1).Get<List<Repository>>(secondPageUrl, Arg.Any<IDictionary<string, string>>(), null);
+                gitHubClient.Connection.Received(1).Get<List<Repository>>(thirdPageUrl, Arg.Any<IDictionary<string, string>>(), null);
             }
 
             [Fact(Skip = "See https://github.com/octokit/octokit.net/issues/1011 for issue to investigate this further")]
@@ -163,7 +174,7 @@ namespace Octokit.Tests.Reactive
             [Fact]
             public async Task ReturnsEveryPageOfRepositories()
             {
-                var firstPageUrl = new Uri("/repositories?since=364", UriKind.Relative);
+                var firstPageUrl = new Uri("repositories?since=364", UriKind.Relative);
                 var secondPageUrl = new Uri("https://example.com/page/2");
                 var firstPageLinks = new Dictionary<string, Uri> { { "next", secondPageUrl } };
                 IApiResponse<List<Repository>> firstPageResponse = new ApiResponse<List<Repository>>(
@@ -235,7 +246,7 @@ namespace Octokit.Tests.Reactive
 
                 client.GetAllBranches("owner", "repo");
 
-                github.Connection.Received(1).GetResponse<List<Branch>>(expected);
+                github.Connection.Received(1).Get<List<Branch>>(expected, Args.EmptyDictionary, null);
             }
         }
 
@@ -269,13 +280,13 @@ namespace Octokit.Tests.Reactive
         public class TheGetAllCommitsMethod
         {
             [Fact]
-            public void EnsuresArguments()
+            public void EnsuresNonNullArguments()
             {
                 var client = new ObservableRepositoriesClient(Substitute.For<IGitHubClient>());
 
                 Assert.Throws<ArgumentNullException>(() => client.Commit.GetAll(null, "repo"));
                 Assert.Throws<ArgumentNullException>(() => client.Commit.GetAll("owner", null));
-                Assert.Throws<ArgumentNullException>(() => client.Commit.GetAll("owner", "repo", null));
+                Assert.Throws<ArgumentNullException>(() => client.Commit.GetAll("owner", "repo", null, ApiOptions.None));
                 Assert.Throws<ArgumentException>(() => client.Commit.GetAll("", "repo"));
                 Assert.Throws<ArgumentException>(() => client.Commit.GetAll("owner", ""));
             }
@@ -372,7 +383,9 @@ namespace Octokit.Tests.Reactive
 
                 client.GetAllTeams("owner", "repo");
 
-                github.Connection.Received(1).GetResponse<List<Team>>(expected);
+                github.Connection.Received(1).Get<List<Team>>(expected,
+                    Arg.Any<IDictionary<string, string>>(),
+                    Arg.Any<string>());
             }
         }
 
@@ -398,7 +411,7 @@ namespace Octokit.Tests.Reactive
 
                 client.GetAllTags("owner", "repo");
 
-                github.Connection.Received(1).GetResponse<List<RepositoryTag>>(expected);
+                github.Connection.Received(1).Get<List<RepositoryTag>>(expected, Arg.Any<IDictionary<string,string>>(), null);
             }
         }
 

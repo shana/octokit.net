@@ -19,12 +19,13 @@ namespace Octokit.Reactive
         IObservableReleasesClient Release { get; }
         IObservableSshKeysClient SshKey { get; }
         IObservableUsersClient User { get; }
-        [System.Obsolete("Notifications are now available under the Activities client. This will be removed in a future update.")]
+        [Obsolete("Notifications are now available under the Activities client. This will be removed in a future update.")]
         IObservableNotificationsClient Notification { get; }
         IObservableGitDatabaseClient Git { get; }
         [Obsolete("Use Git instead")]
         IObservableGitDatabaseClient GitDatabase { get; }
         IObservableSearchClient Search { get; }
         IObservableEnterpriseClient Enterprise { get; }
+        IObservableMigrationClient Migration { get; }
     }
 }

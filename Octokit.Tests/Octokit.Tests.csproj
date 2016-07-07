@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authentication\CredentialsTests.cs" />
+    <Compile Include="Clients\MigrationsClientTests.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseAdminStatsClientTests.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseLdapClientTests.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseOrganizationClientTests.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Clients\RepositoryDeployKeysClientTests.cs" />
     <Compile Include="Clients\RepositoryContentsClientTests.cs" />
     <Compile Include="Clients\RepositoryPagesClientTests.cs" />
+    <Compile Include="Clients\RespositoryCommitsClientTests.cs" />
     <Compile Include="Clients\SearchClientTests.cs" />
     <Compile Include="Clients\GistCommentsClientTests.cs" />
     <Compile Include="Clients\GistsClientTests.cs" />
@@ -129,6 +131,7 @@
     <Compile Include="Clients\SshKeysClientTests.cs" />
     <Compile Include="Clients\TreesClientTests.cs" />
     <Compile Include="Clients\UserAdministrationClientTests.cs" />
+    <Compile Include="Clients\UserGpgKeysClientTests.cs" />
     <Compile Include="Clients\UserKeysClientTests.cs" />
     <Compile Include="Clients\UserEmailsClientTests.cs" />
     <Compile Include="Clients\WatchedClientTests.cs" />
@@ -136,6 +139,7 @@
     <Compile Include="Exceptions\ApiErrorTests.cs" />
     <Compile Include="Exceptions\ApiExceptionTests.cs" />
     <Compile Include="Exceptions\ApiValidationExceptionTests.cs" />
+    <Compile Include="Exceptions\LegalRestrictionExceptionTests.cs" />
     <Compile Include="Exceptions\RepositoryExistsExceptionTests.cs" />
     <Compile Include="Exceptions\TwoFactorChallengeFailedException.cs" />
     <Compile Include="Exceptions\ForbiddenExceptionTests.cs" />
@@ -174,6 +178,7 @@
     <Compile Include="Models\GistTests.cs" />
     <Compile Include="Models\IssueEventTests.cs" />
     <Compile Include="Models\IssueTest.cs" />
+    <Compile Include="Models\MigrationTests.cs" />
     <Compile Include="Models\NewReferenceTests.cs" />
     <Compile Include="Models\MilestoneRequestTests.cs" />
     <Compile Include="Models\IssueRequestTests.cs" />
@@ -186,6 +191,7 @@
     <Compile Include="Models\RepositoryUpdateTests.cs" />
     <Compile Include="Models\RequestParametersTests.cs" />
     <Compile Include="Models\SearchCodeRequestTests.cs" />
+    <Compile Include="Models\SearchIssuesRequestExclusionsTests.cs" />
     <Compile Include="Models\SearchRepositoryRequestTests.cs" />
     <Compile Include="Models\SearchRepositoryResultTests.cs" />
     <Compile Include="Models\SearchUsersRequestTests.cs" />
@@ -198,30 +204,47 @@
     <Compile Include="Reactive\Enterprise\ObservableEnterpriseSearchIndexingClientTests.cs" />
     <Compile Include="Reactive\Enterprise\ObservableEnterpriseOrganizationClientTests.cs" />
     <Compile Include="Reactive\Enterprise\ObservableEnterpriseLicenseClientTests.cs" />
+    <Compile Include="Reactive\ObservableAssigneesClientTests.cs" />
+    <Compile Include="Reactive\ObservableAuthorizationsClientTests.cs" />
     <Compile Include="Reactive\ObservableBlobClientTests.cs" />
     <Compile Include="Reactive\ObservableCommitsClientTests.cs" />
+    <Compile Include="Reactive\ObservableOrganizationsClientTests.cs" />
+    <Compile Include="Reactive\ObservableNotificationsClientTests.cs" />
+    <Compile Include="Reactive\ObservableIssuesLabelsClientTests.cs" />
+    <Compile Include="Reactive\ObservableRepoCollaboratorsClientTests.cs" />
     <Compile Include="Reactive\ObservableDeploymentsClientTests.cs" />
     <Compile Include="Reactive\ObservableDeploymentStatusClientTests.cs" />
+    <Compile Include="Reactive\ObservableMigrationsClientTests.cs" />
     <Compile Include="Reactive\ObservableEventsClientTests.cs" />
     <Compile Include="Reactive\ObservableFeedsClientTests.cs" />
     <Compile Include="Reactive\ObservableIssueCommentsClientTests.cs" />
     <Compile Include="Reactive\ObservableIssuesClientTests.cs" />
     <Compile Include="Reactive\ObservableMilestonesClientTests.cs" />
+    <Compile Include="Reactive\ObservableMiscellaneousClientTests.cs" />
     <Compile Include="Reactive\ObservableOrganizationMembersClientTests.cs" />
     <Compile Include="Reactive\ObservablePullRequestsClientTests.cs" />
     <Compile Include="Reactive\ObservableReleasesClientTests.cs" />
     <Compile Include="Reactive\ObservablePullRequestReviewCommentsClientTests.cs" />
     <Compile Include="Reactive\ObservableRepositoriesClientTests.cs" />
+    <Compile Include="Reactive\ObservableRepositoryCommentsClientTests.cs" />
+    <Compile Include="Reactive\ObservableIssuesEventsClientTests.cs" />
+    <Compile Include="Reactive\ObservableRepositoryCommitsClientTests.cs" />
+    <Compile Include="Reactive\ObservableRepositoryForksClientTests.cs" />
+    <Compile Include="Reactive\ObservableRepositoryPagesClientTests.cs" />
     <Compile Include="Reactive\ObservableRepositoryDeployKeysClientTests.cs" />
     <Compile Include="Reactive\ObservableGistsTests.cs" />
+    <Compile Include="Reactive\ObservableRepositoryHooksClientTests.cs" />
     <Compile Include="Reactive\ObservableStarredClientTests.cs" />
     <Compile Include="Reactive\ObservableStatisticsClientTests.cs" />
+    <Compile Include="Reactive\ObservableTeamsClientTests.cs" />
     <Compile Include="Reactive\ObservableTreesClientTests.cs" />
     <Compile Include="Reactive\ObservableFollowersTest.cs" />
+    <Compile Include="Reactive\ObservableUserGpgKeysClientTests.cs" />
     <Compile Include="Reactive\ObservableUserKeysClientTests.cs" />
     <Compile Include="Reactive\ObservableUserAdministrationClientTests.cs" />
     <Compile Include="Reactive\Enterprise\ObservableEnterpriseAdminStatsClientTests.cs" />
     <Compile Include="Reactive\ObservableUserEmailsClientTests.cs" />
+    <Compile Include="Reactive\ObservableWatchedClientTests.cs" />
     <Compile Include="SelfTests.cs" />
     <Compile Include="SimpleJsonSerializerTests.cs" />
     <Compile Include="Clients\UsersClientTests.cs" />

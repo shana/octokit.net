@@ -2,7 +2,6 @@
 using Octokit;
 using Octokit.Internal;
 using Octokit.Reactive;
-using Octokit.Tests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
@@ -37,8 +36,43 @@ public class ObservableIssuesClientTests
         }
     }
 
-    public class TheGetForRepositoryMethod
+    public class TheGetAllForRepositoryMethod
     {
+        [Fact]
+        public async Task EnsuresArgumentsNotNull()
+        {
+            var client = new ObservableIssuesClient(Substitute.For<IGitHubClient>());
+
+            var options = new ApiOptions();
+            var request = new RepositoryIssueRequest();
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository(null, "name").ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository(null, "name", options).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository(null, "name", request).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository(null, "name", request, options).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("", "name").ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("", "name", options).ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("", "name", request).ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("", "name", request, options).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", null, options).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", null, request).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", null, request, options).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("owner", "").ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("owner", "", options).ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("owner", "", request).ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("owner", "", request, options).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", (ApiOptions)null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", (RepositoryIssueRequest)null).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", null, options).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", request, null).ToTask());
+        }
+
         [Fact]
         public async Task ReturnsEveryPageOfIssues()
         {
@@ -83,9 +117,9 @@ public class ObservableIssuesClientTests
                     && d["sort"] == "created"
                     && d["filter"] == "assigned"), Arg.Any<string>())
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => firstPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, Arg.Any<Dictionary<string,string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => secondPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, Arg.Any<Dictionary<string, string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => lastPageResponse));
             var client = new ObservableIssuesClient(gitHubClient);
 
@@ -100,6 +134,21 @@ public class ObservableIssuesClientTests
 
     public class TheGetAllForOwnedAndMemberRepositoriesMethod
     {
+        [Fact]
+        public async Task EnsuresNonNullArguments()
+        {
+            var client = new ObservableIssuesClient(Substitute.For<IGitHubClient>());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetAllForOwnedAndMemberRepositories((ApiOptions)null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetAllForOwnedAndMemberRepositories((IssueRequest)null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetAllForOwnedAndMemberRepositories(null, new ApiOptions()).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(
+                () => client.GetAllForOwnedAndMemberRepositories(new IssueRequest(), null).ToTask());
+        }
+
         [Fact]
         public async Task ReturnsEveryPageOfIssues()
         {
@@ -142,11 +191,12 @@ public class ObservableIssuesClientTests
                     && d["direction"] == "desc"
                     && d["state"] == "open"
                     && d["sort"] == "created"
-                    && d["filter"] == "assigned"), Arg.Any<string>())
+                    && d["filter"] == "assigned"),
+                Arg.Any<string>())
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => firstPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, Arg.Any<Dictionary<string,string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => secondPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, Arg.Any<Dictionary<string, string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => lastPageResponse));
             var client = new ObservableIssuesClient(gitHubClient);
 
@@ -161,6 +211,31 @@ public class ObservableIssuesClientTests
 
     public class TheGetAllForOrganizationMethod
     {
+        [Fact]
+        public async Task EnsuresArgumentsNotNull()
+        {
+            var client = new ObservableIssuesClient(Substitute.For<IGitHubClient>());
+
+            var options = new ApiOptions();
+            var request = new RepositoryIssueRequest();
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization(null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization(null, options).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization(null, request).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization(null, request, options).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForOrganization("").ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForOrganization("", options).ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForOrganization("", request).ToTask());
+            await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForOrganization("", request, options).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization("org", (ApiOptions)null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization("org", (IssueRequest)null).ToTask());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization("org", null, options).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization("org", request, null).ToTask());
+        }
+
         [Fact]
         public async Task ReturnsEveryPageOfIssues()
         {
@@ -205,10 +280,11 @@ public class ObservableIssuesClientTests
                     && d["sort"] == "created"
                     && d["filter"] == "assigned"), Arg.Any<string>())
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => firstPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, Arg.Any<Dictionary<string,string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => secondPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, Arg.Any<Dictionary<string, string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => lastPageResponse));
+            
             var client = new ObservableIssuesClient(gitHubClient);
 
             var results = await client.GetAllForOrganization("test").ToArray();
@@ -222,6 +298,17 @@ public class ObservableIssuesClientTests
 
     public class TheGetAllForCurrentMethod
     {
+        [Fact]
+        public async Task EnsuresNonNullArguments()
+        {
+            var client = new ObservableIssuesClient(Substitute.For<IGitHubClient>());
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForCurrent((ApiOptions)null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForCurrent((IssueRequest)null).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForCurrent(null, new ApiOptions()).ToTask());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForCurrent(new IssueRequest(), null).ToTask());
+        }
+
         [Fact]
         public async Task ReturnsEveryPageOfIssues()
         {
@@ -266,9 +353,9 @@ public class ObservableIssuesClientTests
                     && d["sort"] == "created"
                     && d["filter"] == "assigned"), Arg.Any<string>())
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => firstPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(secondPageUrl, Arg.Any<Dictionary<string, string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => secondPageResponse));
-            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, null, null)
+            gitHubClient.Connection.Get<List<Issue>>(thirdPageUrl, Arg.Any<Dictionary<string, string>>(), null)
                 .Returns(Task.Factory.StartNew<IApiResponse<List<Issue>>>(() => lastPageResponse));
             var client = new ObservableIssuesClient(gitHubClient);
 
@@ -329,18 +416,68 @@ public class ObservableIssuesClientTests
             var gitHubClient = Substitute.For<IGitHubClient>();
             var client = new ObservableIssuesClient(gitHubClient);
 
-            Assert.Throws<ArgumentNullException>(() => client.Create(null, "name", new NewIssue("title")));
-            Assert.Throws<ArgumentException>(() => client.Create("", "name", new NewIssue("x")));
-            Assert.Throws<ArgumentNullException>(() => client.Create("owner", null, new NewIssue("x")));
-            Assert.Throws<ArgumentException>(() => client.Create("owner", "", new NewIssue("x")));
-            Assert.Throws<ArgumentNullException>(() => client.Create("owner", "name", null));
+            Assert.Throws<ArgumentNullException>(() => client.Update(null, "name", 42, new IssueUpdate()));
+            Assert.Throws<ArgumentException>(() => client.Update("", "name", 42, new IssueUpdate()));
+            Assert.Throws<ArgumentNullException>(() => client.Update("owner", null, 42, new IssueUpdate()));
+            Assert.Throws<ArgumentException>(() => client.Update("owner", "", 42, new IssueUpdate()));
+            Assert.Throws<ArgumentNullException>(() => client.Update("owner", "name", 42, null));
+        }
+    }
+
+    public class TheLockMethod
+    {
+        [Fact]
+        public void LocksIssue()
+        {
+            var gitHubClient = Substitute.For<IGitHubClient>();
+            var client = new ObservableIssuesClient(gitHubClient);
+
+            client.Lock("fake", "repo", 42);
+            gitHubClient.Issue.Received().Lock("fake", "repo", 42);
+        }
+
+        [Fact]
+        public void EnsuresArgumentsNotNull()
+        {
+            var gitHubClient = Substitute.For<IGitHubClient>();
+            var client = new ObservableIssuesClient(gitHubClient);
+
+            Assert.Throws<ArgumentNullException>(() => client.Lock(null, "name", 42));
+            Assert.Throws<ArgumentException>(() => client.Lock("", "name", 42));
+            Assert.Throws<ArgumentNullException>(() => client.Lock("owner", null, 42));
+            Assert.Throws<ArgumentException>(() => client.Lock("owner", "", 42));
+        }
+    }
+
+    public class TheUnlockMethod
+    {
+        [Fact]
+        public void UnlocksIssue()
+        {
+            var gitHubClient = Substitute.For<IGitHubClient>();
+            var client = new ObservableIssuesClient(gitHubClient);
+
+            client.Unlock("fake", "repo", 42);
+            gitHubClient.Issue.Received().Unlock("fake", "repo", 42);
+        }
+
+        [Fact]
+        public void EnsuresArgumentsNotNull()
+        {
+            var gitHubClient = Substitute.For<IGitHubClient>();
+            var client = new ObservableIssuesClient(gitHubClient);
+
+            Assert.Throws<ArgumentNullException>(() => client.Unlock(null, "name", 42));
+            Assert.Throws<ArgumentException>(() => client.Unlock("", "name", 42));
+            Assert.Throws<ArgumentNullException>(() => client.Unlock("owner", null, 42));
+            Assert.Throws<ArgumentException>(() => client.Unlock("owner", "", 42));
         }
     }
 
     public class TheCtor
     {
         [Fact]
-        public void EnsuresArgument()
+        public void EnsuresNonNullArguments()
         {
             Assert.Throws<ArgumentNullException>(() => new IssuesClient(null));
         }

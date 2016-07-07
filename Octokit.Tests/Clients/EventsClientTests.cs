@@ -6,14 +6,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Octokit.Internal;
-using Octokit;
-using Octokit.Tests.Helpers;
 using Xunit;
 
 namespace Octokit.Tests.Clients
 {
     public class EventsClientTests
     {
+        public class TheCtor
+        {
+            [Fact]
+            public void EnsuresNonNullArguments()
+            {
+                Assert.Throws<ArgumentNullException>(
+                    () => new EventsClient(null));
+            }
+        }
+
         public class TheGetAllMethod
         {
             [Fact]
@@ -24,7 +32,33 @@ namespace Octokit.Tests.Clients
 
                 client.GetAll();
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "events"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "events"), Args.ApiOptions);
+            }
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+                
+                client.GetAll(options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "events"), options);
+            }
+
+            [Fact]
+            public async Task EnsuresNonNullArguments()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAll(null));              
             }
         }
 
@@ -38,7 +72,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllForRepository("fake", "repo");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/issues/events"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/events"), Args.ApiOptions);
+            }
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+
+                client.GetAllForRepository("fake", "repo", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/events"), options);
             }
 
             [Fact]
@@ -51,6 +103,56 @@ namespace Octokit.Tests.Clients
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("", "name"));
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("owner", ""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepository("owner", "name",null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("owner", "",ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepository("", "name", ApiOptions.None));
+            }
+        }
+
+        public class TheGetAllIssuesForRepositoryMethod
+        {
+            [Fact]
+            public void RequestsCorrectUrl()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                client.GetAllIssuesForRepository("fake", "repo");
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/issues/events"), Args.ApiOptions);
+            }
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+
+                client.GetAllIssuesForRepository("fake", "repo", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/issues/events"), options);
+            }
+
+            [Fact]
+            public async Task EnsuresArgumentsNotNull()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllIssuesForRepository(null, "name"));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllIssuesForRepository("", "name"));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllIssuesForRepository("owner", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllIssuesForRepository("owner", ""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllIssuesForRepository("owner", "name", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllIssuesForRepository("owner", "", ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllIssuesForRepository("", "name", ApiOptions.None));
             }
         }
 
@@ -64,7 +166,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllForRepositoryNetwork("fake", "repo");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "networks/fake/repo/events"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "networks/fake/repo/events"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllForRepositoryNetwork("fake", "repo", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "networks/fake/repo/events"), options);
             }
 
             [Fact]
@@ -77,6 +197,9 @@ namespace Octokit.Tests.Clients
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepositoryNetwork("", "name"));
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepositoryNetwork("owner", null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepositoryNetwork("owner", ""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForRepositoryNetwork("owner", "name", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepositoryNetwork("owner", "", ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForRepositoryNetwork("", "name", ApiOptions.None));
             }
         }
 
@@ -90,7 +213,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllForOrganization("fake");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "orgs/fake/events"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "orgs/fake/events"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllForOrganization("fake", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "orgs/fake/events"), options);
             }
 
             [Fact]
@@ -101,6 +242,8 @@ namespace Octokit.Tests.Clients
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization(null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForOrganization(""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForOrganization("fake", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForOrganization("", ApiOptions.None));
             }
         }
 
@@ -114,7 +257,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllUserReceived("fake");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/received_events"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/received_events"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllUserReceived("fake", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/received_events"), options);
             }
 
             [Fact]
@@ -125,6 +286,8 @@ namespace Octokit.Tests.Clients
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserReceived(null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserReceived(""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserReceived("fake", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserReceived("", ApiOptions.None));
             }
         }
 
@@ -138,7 +301,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllUserReceivedPublic("fake");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/received_events/public"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/received_events/public"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllUserReceivedPublic("fake", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/received_events/public"), options);
             }
 
             [Fact]
@@ -149,6 +330,8 @@ namespace Octokit.Tests.Clients
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserReceivedPublic(null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserReceivedPublic(""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserReceivedPublic("fake", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserReceivedPublic("", ApiOptions.None));
             }
         }
 
@@ -162,7 +345,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllUserPerformed("fake");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllUserPerformed("fake", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events"), options);
             }
 
             [Fact]
@@ -173,6 +374,8 @@ namespace Octokit.Tests.Clients
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserPerformed(null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserPerformed(""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserPerformed("fake", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserPerformed("", ApiOptions.None));
             }
         }
 
@@ -186,7 +389,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllUserPerformedPublic("fake");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events/public"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events/public"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllUserPerformedPublic("fake", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events/public"), options);
             }
 
             [Fact]
@@ -197,6 +418,8 @@ namespace Octokit.Tests.Clients
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserPerformedPublic(null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserPerformedPublic(""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllUserPerformedPublic("fake",null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllUserPerformedPublic("",ApiOptions.None));
             }
         }
 
@@ -210,7 +433,25 @@ namespace Octokit.Tests.Clients
 
                 client.GetAllForAnOrganization("fake", "org");
 
-                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events/orgs/org"));
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events/orgs/org"), Args.ApiOptions);
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new EventsClient(connection);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllForAnOrganization("fake", "org", options);
+
+                connection.Received().GetAll<Activity>(Arg.Is<Uri>(u => u.ToString() == "users/fake/events/orgs/org"), options);
             }
 
             [Fact]
@@ -223,6 +464,9 @@ namespace Octokit.Tests.Clients
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForAnOrganization("", "org"));
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForAnOrganization("fake", null));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForAnOrganization("fake", ""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllForAnOrganization("fake", "org", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForAnOrganization("fake", "", ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllForAnOrganization("", "org", ApiOptions.None));
             }
         }
 

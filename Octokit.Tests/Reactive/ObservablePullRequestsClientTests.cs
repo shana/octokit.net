@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using NSubstitute;
 using Octokit.Internal;
 using Octokit.Reactive;
-using Octokit.Tests.Helpers;
 using Xunit;
 
 namespace Octokit.Tests.Reactive
@@ -42,7 +41,67 @@ namespace Octokit.Tests.Reactive
         public class TheGetForRepositoryMethod
         {
             [Fact]
-            public void ReturnsEveryPageOfPullRequests()
+            public void RequestsCorrectUrl()
+            {
+                var gitHubClient = Substitute.For<IGitHubClient>();
+                var client = new ObservablePullRequestsClient(gitHubClient);
+
+                client.GetAllForRepository("fake", "repo");
+
+                gitHubClient.Received().PullRequest.GetAllForRepository("fake", "repo");
+            }
+
+            [Fact]
+            public void RequestsCorrectUrlWithApiOptions()
+            {
+                var gitHubClient = Substitute.For<IGitHubClient>();
+                var client = new ObservablePullRequestsClient(gitHubClient);
+
+                var options = new ApiOptions
+                {
+                    PageCount = 1,
+                    PageSize = 1,
+                    StartPage = 1
+                };
+
+                client.GetAllForRepository("fake", "repo", options);
+
+                gitHubClient.Received().PullRequest.GetAllForRepository("fake", "repo", options);
+            }
+
+            [Fact]
+            public void SendsAppropriateParameters()
+            {
+                var gitHubClient = Substitute.For<IGitHubClient>();
+                var client = new ObservablePullRequestsClient(gitHubClient);
+
+                var pullRequestRequest = new PullRequestRequest { SortDirection = SortDirection.Descending };
+                client.GetAllForRepository("fake", "repo", pullRequestRequest);
+
+                gitHubClient.Received().PullRequest.GetAllForRepository("fake", "repo", pullRequestRequest, Args.ApiOptions);
+            }
+
+            [Fact]
+            public void SendsAppropriateParametersWithApiOptions()
+            {
+                var gitHubClient = Substitute.For<IGitHubClient>();
+                var client = new ObservablePullRequestsClient(gitHubClient);
+
+                var options = new ApiOptions
+                {
+                    PageCount = 1,
+                    PageSize = 1,
+                    StartPage = 1
+                };
+
+                var pullRequestRequest = new PullRequestRequest { SortDirection = SortDirection.Descending };
+                client.GetAllForRepository("fake", "repo", pullRequestRequest, options);
+
+                gitHubClient.Received().PullRequest.GetAllForRepository("fake", "repo", pullRequestRequest, options);
+            }
+
+            [Fact]
+            public async Task ReturnsEveryPageOfPullRequests()
             {
                 var firstPageUrl = new Uri("repos/fake/repo/pulls", UriKind.Relative);
                 var secondPageUrl = new Uri("https://example.com/page/2");
@@ -78,15 +137,15 @@ namespace Octokit.Tests.Reactive
                     }
                 );
                 var gitHubClient = Substitute.For<IGitHubClient>();
-                gitHubClient.Connection.Get<List<PullRequest>>(firstPageUrl, null, null)
+                gitHubClient.Connection.Get<List<PullRequest>>(firstPageUrl, Args.EmptyDictionary, null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<PullRequest>>>(() => firstPageResponse));
-                gitHubClient.Connection.Get<List<PullRequest>>(secondPageUrl, null, null)
+                gitHubClient.Connection.Get<List<PullRequest>>(secondPageUrl, Args.EmptyDictionary, null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<PullRequest>>>(() => secondPageResponse));
-                gitHubClient.Connection.Get<List<PullRequest>>(thirdPageUrl, null, null)
+                gitHubClient.Connection.Get<List<PullRequest>>(thirdPageUrl, Args.EmptyDictionary, null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<PullRequest>>>(() => lastPageResponse));
                 var client = new ObservablePullRequestsClient(gitHubClient);
 
-                var results = client.GetAllForRepository("fake", "repo").ToArray().Wait();
+                var results = await client.GetAllForRepository("fake", "repo").ToArray();
 
                 Assert.Equal(7, results.Length);
                 Assert.Equal(firstPageResponse.Body[0].Number, results[0].Number);
@@ -95,7 +154,7 @@ namespace Octokit.Tests.Reactive
             }
 
             [Fact]
-            public void SendsAppropriateParameters()
+            public async Task SendsAppropriateParametersMulti()
             {
                 var firstPageUrl = new Uri("repos/fake/repo/pulls", UriKind.Relative);
                 var secondPageUrl = new Uri("https://example.com/page/2");
@@ -139,18 +198,63 @@ namespace Octokit.Tests.Reactive
                         && d["sort"] == "created"
                         && d["direction"] == "desc"), Arg.Any<string>())
                     .Returns(Task.Factory.StartNew<IApiResponse<List<PullRequest>>>(() => firstPageResponse));
-                gitHubClient.Connection.Get<List<PullRequest>>(secondPageUrl, null, null)
+                gitHubClient.Connection.Get<List<PullRequest>>(secondPageUrl, Arg.Is<Dictionary<string, string>>(d => d.Count == 5
+                        && d["head"] == "user:ref-name"
+                        && d["state"] == "open"
+                        && d["base"] == "fake_base_branch"
+                        && d["sort"] == "created"
+                        && d["direction"] == "desc"), null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<PullRequest>>>(() => secondPageResponse));
-                gitHubClient.Connection.Get<List<PullRequest>>(thirdPageUrl, null, null)
+                gitHubClient.Connection.Get<List<PullRequest>>(thirdPageUrl, Arg.Is<Dictionary<string, string>>(d => d.Count == 5
+                        && d["head"] == "user:ref-name"
+                        && d["state"] == "open"
+                        && d["base"] == "fake_base_branch"
+                        && d["sort"] == "created"
+                        && d["direction"] == "desc"), null)
                     .Returns(Task.Factory.StartNew<IApiResponse<List<PullRequest>>>(() => lastPageResponse));
                 var client = new ObservablePullRequestsClient(gitHubClient);
 
-                var results = client.GetAllForRepository("fake", "repo", new PullRequestRequest { Head = "user:ref-name", Base = "fake_base_branch" }).ToArray().Wait();
+                var results = await client.GetAllForRepository("fake", "repo", new PullRequestRequest { Head = "user:ref-name", Base = "fake_base_branch" }).ToArray();
 
                 Assert.Equal(7, results.Length);
                 Assert.Equal(firstPageResponse.Body[0].Number, results[0].Number);
                 Assert.Equal(secondPageResponse.Body[1].Number, results[4].Number);
                 Assert.Equal(lastPageResponse.Body[0].Number, results[6].Number);
+            }
+
+            [Fact]
+            public async Task EnsuresNonNullArguments()
+            {
+                var gitHubClient = Substitute.For<IGitHubClient>();
+                var client = new ObservablePullRequestsClient(gitHubClient);
+
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository(null, "name"));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", null));
+
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository(null, "name", ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", null, ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", (ApiOptions)null));
+
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository(null, "name", new PullRequestRequest()));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", null, new PullRequestRequest()));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", (PullRequestRequest)null));
+
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository(null, "name", new PullRequestRequest(), ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", null, new PullRequestRequest(), ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", null, ApiOptions.None));
+                Assert.Throws<ArgumentNullException>(() => client.GetAllForRepository("owner", "name", new PullRequestRequest(), null));
+
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("", "name"));
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("owner", ""));
+
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("", "name", ApiOptions.None));
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("owner", "", ApiOptions.None));
+
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("", "name", new PullRequestRequest()));
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("owner", "", new PullRequestRequest()));
+
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("", "name", new PullRequestRequest(), ApiOptions.None));
+                Assert.Throws<ArgumentException>(() => client.GetAllForRepository("owner", "", new PullRequestRequest(), ApiOptions.None));
             }
         }
 
@@ -281,7 +385,7 @@ namespace Octokit.Tests.Reactive
             public async Task FetchesAllCommitsForPullRequest()
             {
                 var commit = new PullRequestCommit(null, null, null, null, null, Enumerable.Empty<GitReference>(), null, null);
-                var expectedUrl = string.Format("repos/fake/repo/pulls/42/commits");
+                var expectedUrl = "repos/fake/repo/pulls/42/commits";
                 var gitHubClient = Substitute.For<IGitHubClient>();
                 var connection = Substitute.For<IConnection>();
                 IApiResponse<List<PullRequestCommit>> response = new ApiResponse<List<PullRequestCommit>>
@@ -320,7 +424,7 @@ namespace Octokit.Tests.Reactive
             public async Task FetchesAllFilesForPullRequest()
             {
                 var file = new PullRequestFile(null, null, null, 0, 0, 0, null, null, null, null);
-                var expectedUrl = string.Format("repos/fake/repo/pulls/42/files");
+                var expectedUrl = "repos/fake/repo/pulls/42/files";
                 var gitHubClient = Substitute.For<IGitHubClient>();
                 var connection = Substitute.For<IConnection>();
                 IApiResponse<List<PullRequestFile>> response = new ApiResponse<List<PullRequestFile>>
@@ -352,10 +456,11 @@ namespace Octokit.Tests.Reactive
                 await Assert.ThrowsAsync<ArgumentException>(() => client.Files("owner", "", 1));
             }
         }
+
         public class TheCtor
         {
             [Fact]
-            public void EnsuresArgument()
+            public void EnsuresNonNullArguments()
             {
                 Assert.Throws<ArgumentNullException>(() => new PullRequestsClient(null));
             }

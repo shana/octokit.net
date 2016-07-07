@@ -1,6 +1,5 @@
 ﻿using NSubstitute;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,7 +7,7 @@ namespace Octokit.Tests.Clients
 {
     public class UserKeysClientTests
     {
-        public class TheGetAllMethod
+        public class TheGetAllForCurrentMethod
         {
             [Fact]
             public void RequestsTheCorrectUrl()
@@ -17,10 +16,11 @@ namespace Octokit.Tests.Clients
                 var client = new UserKeysClient(connection);
 
                 var expectedUri = "user/keys";
-                client.GetAll();
+                client.GetAllForCurrent();
 
                 connection.Received().GetAll<PublicKey>(
-                    Arg.Is<Uri>(u => u.ToString() == expectedUri));
+                    Arg.Is<Uri>(u => u.ToString() == expectedUri),
+                    Arg.Any<ApiOptions>());
             }
         }
 
@@ -31,6 +31,7 @@ namespace Octokit.Tests.Clients
             {
                 var client = new UserKeysClient(Substitute.For<IApiConnection>());
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAll(null));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAll("fake", null));
             }
 
             [Fact]
@@ -51,7 +52,8 @@ namespace Octokit.Tests.Clients
                 client.GetAll("auser");
 
                 connection.Received().GetAll<PublicKey>(
-                    Arg.Is<Uri>(u => u.ToString() == expectedUri));
+                    Arg.Is<Uri>(u => u.ToString() == expectedUri),
+                    Arg.Any<ApiOptions>());
             }
         }
 
@@ -129,7 +131,7 @@ namespace Octokit.Tests.Clients
         public class TheCtor
         {
             [Fact]
-            public void EnsuresArguments()
+            public void EnsuresNonNullArguments()
             {
                 Assert.Throws<ArgumentNullException>(
                     () => new UserEmailsClient(null));

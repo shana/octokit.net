@@ -51,7 +51,7 @@ namespace Octokit.Tests
         public static Dictionary<string, string> EmptyDictionary
         {
             get { return Arg.Is<Dictionary<string, string>>(d => d.Count == 0); }
-        }
+        }               
 
         public static OrganizationUpdate OrganizationUpdate
         {
@@ -66,6 +66,11 @@ namespace Octokit.Tests
         public static NewDeployKey NewDeployKey
         {
             get { return Arg.Any<NewDeployKey>(); }
+        }
+
+        public static ApiOptions ApiOptions
+        {
+            get { return Arg.Any<ApiOptions>(); }
         }
     }
 }

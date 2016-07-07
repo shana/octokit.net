@@ -2,26 +2,57 @@
 using System.IO;
 using System.Threading.Tasks;
 using NSubstitute;
-using Octokit.Tests.Helpers;
 using Xunit;
 
 namespace Octokit.Tests.Clients
 {
-    public class ReleasesClientTests
+    public class    ReleasesClientTests
     {
-        public class TheGetReleasesMethod
+        public class TheCtor
         {
             [Fact]
-            public void RequestsCorrectUrl()
+            public void EnsuresNonNullArguments()
+            {
+                Assert.Throws<ArgumentNullException>(() =>
+                    new ReleasesClient(null));
+            }
+        }
+
+        public class TheGetAllMethod
+        {
+            [Fact]
+            public async Task RequestsCorrectUrl()
             {
                 var client = Substitute.For<IApiConnection>();
                 var releasesClient = new ReleasesClient(client);
 
-                releasesClient.GetAll("fake", "repo");
+                await releasesClient.GetAll("fake", "repo");
 
                 client.Received().GetAll<Release>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases"),
                     null,
-                    "application/vnd.github.v3");
+                    "application/vnd.github.v3",
+                    Args.ApiOptions);
+            }
+
+            [Fact]
+            public async Task RequestsCorrectUrlWithApiOptions()
+            {
+                var client = Substitute.For<IApiConnection>();
+                var releasesClient = new ReleasesClient(client);
+
+                var options = new ApiOptions
+                {
+                    PageSize = 1,
+                    PageCount = 1,
+                    StartPage = 1
+                };
+
+                await releasesClient.GetAll("fake", "repo", options);
+
+                client.Received().GetAll<Release>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases"),
+                    null,
+                    "application/vnd.github.v3",
+                    options);
             }
 
             [Fact]
@@ -30,19 +61,24 @@ namespace Octokit.Tests.Clients
                 var releasesClient = new ReleasesClient(Substitute.For<IApiConnection>());
 
                 await Assert.ThrowsAsync<ArgumentNullException>(() => releasesClient.GetAll(null, "name"));
+                await Assert.ThrowsAsync<ArgumentException>(() => releasesClient.GetAll("", "name"));
                 await Assert.ThrowsAsync<ArgumentNullException>(() => releasesClient.GetAll("owner", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => releasesClient.GetAll("owner", ""));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => releasesClient.GetAll("owner", "name", null));
+                await Assert.ThrowsAsync<ArgumentException>(() => releasesClient.GetAll("", "name", ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentException>(() => releasesClient.GetAll("owner", "", ApiOptions.None));
             }
         }
 
         public class TheGetReleaseMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
 
-                client.Get("fake", "repo", 1);
+                await client.Get("fake", "repo", 1);
 
                 connection.Received().Get<Release>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/1"));
             }
@@ -62,12 +98,12 @@ namespace Octokit.Tests.Clients
         public class TheGetLatestReleaseMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
 
-                client.GetLatest("fake", "repo");
+                await client.GetLatest("fake", "repo");
 
                 connection.Received().Get<Release>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/latest"));
             }
@@ -86,13 +122,13 @@ namespace Octokit.Tests.Clients
         public class TheCreateReleaseMethod
         {
             [Fact]
-            public void RequestsCorrectUrl()
+            public async Task RequestsCorrectUrl()
             {
                 var client = Substitute.For<IApiConnection>();
                 var releasesClient = new ReleasesClient(client);
                 var data = new NewRelease("fake-tag");
 
-                releasesClient.Create("fake", "repo", data);
+                await releasesClient.Create("fake", "repo", data);
 
                 client.Received().Post<Release>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases"),
                     data,
@@ -115,13 +151,13 @@ namespace Octokit.Tests.Clients
         public class TheEditReleaseMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var releasesClient = new ReleasesClient(connection);
                 var data = new ReleaseUpdate { TagName = "fake-tag" };
 
-                releasesClient.Edit("fake", "repo", 1, data);
+                await releasesClient.Edit("fake", "repo", 1, data);
 
                 connection.Received().Patch<Release>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/1"), data);
             }
@@ -143,12 +179,12 @@ namespace Octokit.Tests.Clients
         public class TheDeleteReleaseMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
 
-                client.Delete("fake", "repo", 1);
+                await client.Delete("fake", "repo", 1);
 
                 connection.Received().Delete(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/1"));
             }
@@ -168,26 +204,53 @@ namespace Octokit.Tests.Clients
         public class TheGetAssetsMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
 
-                client.GetAllAssets("fake", "repo", 1);
+                await client.GetAllAssets("fake", "repo", 1);
 
                 connection.Received().GetAll<ReleaseAsset>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/1/assets"),
                     null,
-                    "application/vnd.github.v3");
+                    "application/vnd.github.v3",
+                    Args.ApiOptions);
+            }
+
+            [Fact]
+            public async Task RequestsTheCorrectUrlWithApiOptions()
+            {
+                var connection = Substitute.For<IApiConnection>();
+                var client = new ReleasesClient(connection);
+
+                var options = new ApiOptions
+                {
+                    StartPage = 1,
+                    PageCount = 1,
+                    PageSize = 1
+                };
+
+                await client.GetAllAssets("fake", "repo", 1, options);
+
+                connection.Received().GetAll<ReleaseAsset>(
+                    Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/1/assets"),
+                    null,
+                    "application/vnd.github.v3", options);
             }
 
             [Fact]
             public async Task EnsuresNonNullArguments()
             {
                 var client = new ReleasesClient(Substitute.For<IApiConnection>());
-
+                
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllAssets(null, "name", 1));
-                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllAssets("", "name", 1));
                 await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllAssets("owner", null, 1));
+
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllAssets("owner", null, 1, ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllAssets(null, "name", 1, ApiOptions.None));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => client.GetAllAssets("owner", "name", 1, null));
+
+                await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllAssets("", "name", 1));
                 await Assert.ThrowsAsync<ArgumentException>(() => client.GetAllAssets("owner", "", 1));
             }
         }
@@ -195,7 +258,7 @@ namespace Octokit.Tests.Clients
         public class TheUploadReleaseAssetMethod
         {
             [Fact]
-            public void UploadsToCorrectUrl()
+            public async Task UploadsToCorrectUrl()
             {
                 var client = Substitute.For<IApiConnection>();
                 var releasesClient = new ReleasesClient(client);
@@ -203,7 +266,7 @@ namespace Octokit.Tests.Clients
                 var rawData = Substitute.For<Stream>();
                 var upload = new ReleaseAssetUpload("example.zip", "application/zip", rawData, null);
 
-                releasesClient.UploadAsset(release, upload);
+                await releasesClient.UploadAsset(release, upload);
 
                 client.Received().Post<ReleaseAsset>(
                     Arg.Is<Uri>(u => u.ToString() == "https://uploads.test.dev/does/not/matter/releases/1/assets?name=example.zip"),
@@ -244,12 +307,12 @@ namespace Octokit.Tests.Clients
         public class TheGetAssetMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
 
-                client.GetAsset("fake", "repo", 1);
+                await client.GetAsset("fake", "repo", 1);
 
                 connection.Received().Get<ReleaseAsset>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/assets/1"));
             }
@@ -269,13 +332,13 @@ namespace Octokit.Tests.Clients
         public class TheEditAssetMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
                 var data = new ReleaseAssetUpdate("asset");
 
-                client.EditAsset("fake", "repo", 1, data);
+                await client.EditAsset("fake", "repo", 1, data);
 
                 connection.Received().Patch<ReleaseAsset>(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/assets/1"),
                     data);
@@ -297,12 +360,12 @@ namespace Octokit.Tests.Clients
         public class TheDeleteAssetMethod
         {
             [Fact]
-            public void RequestsTheCorrectUrl()
+            public async Task RequestsTheCorrectUrl()
             {
                 var connection = Substitute.For<IApiConnection>();
                 var client = new ReleasesClient(connection);
 
-                client.DeleteAsset("fake", "repo", 1);
+                await client.DeleteAsset("fake", "repo", 1);
 
                 connection.Received().Delete(Arg.Is<Uri>(u => u.ToString() == "repos/fake/repo/releases/assets/1"));
             }

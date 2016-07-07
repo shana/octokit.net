@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Octokit.Internal;
@@ -168,7 +165,7 @@ namespace Octokit.Tests.Http
 
         static HttpMessageInvoker CreateInvoker(HttpResponseMessage httpResponseMessage1, HttpResponseMessage httpResponseMessage2 = null)
         {
-            var redirectHandler = new RedirectHandler()
+            var redirectHandler = new RedirectHandler
             {
                 InnerHandler = new MockRedirectHandler(httpResponseMessage1, httpResponseMessage2)
             };
@@ -181,7 +178,7 @@ namespace Octokit.Tests.Http
     {
         readonly HttpResponseMessage _response1;
         readonly HttpResponseMessage _response2;
-        private bool _Response1Sent = false;
+        private bool _Response1Sent;
 
         public MockRedirectHandler(HttpResponseMessage response1, HttpResponseMessage response2 = null)
         {
@@ -189,7 +186,7 @@ namespace Octokit.Tests.Http
             _response2 = response2;
         }
 
-        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (!_Response1Sent)
             {

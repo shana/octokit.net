@@ -447,6 +447,8 @@
     <Compile Include="Models\Request\Enterprise\NewOrganization.cs" />
     <Compile Include="Models\Request\Enterprise\SearchIndexingTarget.cs" />
     <Compile Include="Models\Response\Enterprise\SearchIndexingResponse.cs" />
+    <Compile Include="Models\Request\ApiOptions.cs" />
+    <Compile Include="Helpers\Pagination.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseLdapClient.cs" />
     <Compile Include="Clients\Enterprise\IEnterpriseLdapClient.cs" />
     <Compile Include="Models\Request\Enterprise\NewLdapMapping.cs" />
@@ -456,6 +458,19 @@
     <Compile Include="Models\Request\UserRename.cs" />
     <Compile Include="Models\Response\UserRenameResponse.cs" />
     <Compile Include="Models\Request\NewPublicKey.cs" />
+    <Compile Include="Exceptions\LegalRestrictionException.cs" />
+    <Compile Include="Models\Request\SearchIssuesRequestExclusions.cs" />
+    <Compile Include="Clients\IMigrationClient.cs" />
+    <Compile Include="Clients\IMigrationsClient.cs" />
+    <Compile Include="Clients\MigrationClient.cs" />
+    <Compile Include="Clients\MigrationsClient.cs" />
+    <Compile Include="Models\Request\StartMigrationRequest.cs" />
+    <Compile Include="Models\Response\Migration.cs" />
+    <Compile Include="Models\Request\RepositoryPermissionRequest.cs" />
+    <Compile Include="Clients\IUserGpgKeysClient.cs" />
+    <Compile Include="Clients\UserGpgKeysClient.cs" />
+    <Compile Include="Models\Request\NewGpgKey.cs" />
+    <Compile Include="Models\Response\GpgKey.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

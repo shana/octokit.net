@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Octokit;
 using Octokit.Tests.Integration;
@@ -10,8 +9,6 @@ public class BranchesClientTests
 {
     public class TheGetBranchesMethod
     {
-        public TheGetBranchesMethod() { }
-
         [IntegrationTest]
         public async Task ReturnsBranches()
         {
@@ -43,7 +40,7 @@ public class BranchesClientTests
         public async Task CreateTheWorld()
         {
             // Set master branch to be protected, with some status checks
-            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Everyone, new List<string>() { "check1", "check2" });
+            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Everyone, new List<string> { "check1", "check2" });
 
             var update = new BranchUpdate();
             update.Protection = new BranchProtection(true, requiredStatusChecks);
@@ -55,7 +52,7 @@ public class BranchesClientTests
         public async Task ProtectsBranch()
         {
             // Set master branch to be protected, with some status checks
-            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Everyone, new List<string>() { "check1", "check2", "check3" });
+            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Everyone, new List<string> { "check1", "check2", "check3" });
 
             var update = new BranchUpdate();
             update.Protection = new BranchProtection(true, requiredStatusChecks);
@@ -80,7 +77,7 @@ public class BranchesClientTests
             await CreateTheWorld();
 
             // Remove status check enforcement
-            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Off, new List<string>() { "check1" });
+            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Off, new List<string> { "check1" });
 
             var update = new BranchUpdate();
             update.Protection = new BranchProtection(true, requiredStatusChecks);
@@ -106,7 +103,7 @@ public class BranchesClientTests
 
             // Unprotect branch
             // Deliberately set Enforcement and Contexts to some values (these should be ignored)
-            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Everyone, new List<string>() { "check1" });
+            var requiredStatusChecks = new RequiredStatusChecks(EnforcementLevel.Everyone, new List<string> { "check1" });
 
             var update = new BranchUpdate();
             update.Protection = new BranchProtection(false, requiredStatusChecks);

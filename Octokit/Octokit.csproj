@@ -62,6 +62,8 @@
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
     <Compile Include="Clients\ActivitiesClient.cs" />
+    <Compile Include="Clients\IUserGpgKeysClient.cs" />
+    <Compile Include="Clients\MigrationsClient.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseAdminStatsClient.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseLdapClient.cs" />
     <Compile Include="Clients\Enterprise\EnterpriseOrganizationClient.cs" />
@@ -74,7 +76,9 @@
     <Compile Include="Clients\Enterprise\IEnterpriseAdminStatsClient.cs" />
     <Compile Include="Clients\Enterprise\IEnterpriseClient.cs" />
     <Compile Include="Clients\Enterprise\IEnterpriseSearchIndexingClient.cs" />
+    <Compile Include="Clients\IMigrationsClient.cs" />
     <Compile Include="Clients\IMergingClient.cs" />
+    <Compile Include="Clients\IMigrationClient.cs" />
     <Compile Include="Clients\IOAuthClient.cs" />
     <Compile Include="Clients\IRepositoryCommitsClient.cs" />
     <Compile Include="Clients\IRepositoryDeployKeysClient.cs" />
@@ -82,8 +86,10 @@
     <Compile Include="Clients\IUserAdministrationClient.cs" />
     <Compile Include="Clients\IUserKeysClient.cs" />
     <Compile Include="Clients\MergingClient.cs" />
+    <Compile Include="Clients\MigrationClient.cs" />
     <Compile Include="Clients\OAuthClient.cs" />
     <Compile Include="Clients\IRepositoryContentsClient.cs" />
+    <Compile Include="Clients\OrganizationMembersClient.cs" />
     <Compile Include="Clients\RepositoryCommentsClient.cs" />
     <Compile Include="Clients\IRepositoryCommentsClient.cs" />
     <Compile Include="Clients\FeedsClient.cs" />
@@ -92,9 +98,11 @@
     <Compile Include="Clients\RepositoryDeployKeysClient.cs" />
     <Compile Include="Clients\RepositoryPagesClient.cs" />
     <Compile Include="Clients\UserAdministrationClient.cs" />
+    <Compile Include="Clients\UserGpgKeysClient.cs" />
     <Compile Include="Clients\UserKeysClient.cs" />
     <Compile Include="Clients\RepositoryContentsClient.cs" />
     <Compile Include="Exceptions\InvalidGitIgnoreTemplateException.cs" />
+    <Compile Include="Exceptions\LegalRestrictionException.cs" />
     <Compile Include="Exceptions\PrivateRepositoryQuotaExceededException.cs" />
     <Compile Include="Exceptions\PullRequestMismatchException.cs" />
     <Compile Include="Exceptions\PullRequestNotMergeableException.cs" />
@@ -108,6 +116,7 @@
     <Compile Include="Helpers\ApiUrls.Authorizations.cs" />
     <Compile Include="Helpers\ConcurrentCache.cs" />
     <Compile Include="Helpers\HttpClientExtensions.cs" />
+    <Compile Include="Helpers\Pagination.cs" />
     <Compile Include="Helpers\PropertyOrField.cs" />
     <Compile Include="Helpers\ReferenceExtensions.cs" />
     <Compile Include="Helpers\SerializeNullAttribute.cs" />
@@ -117,6 +126,8 @@
     <Compile Include="Http\ProductHeaderValue.cs" />
     <Compile Include="Http\RequestBody.cs" />
     <Compile Include="Models\Request\BranchUpdate.cs" />
+    <Compile Include="Models\Request\ApiOptions.cs" />
+    <Compile Include="Models\Request\NewGpgKey.cs" />
     <Compile Include="Models\Request\NewImpersonationToken.cs" />
     <Compile Include="Models\Request\Enterprise\NewLdapMapping.cs" />
     <Compile Include="Models\Request\GistFileUpdate.cs" />
@@ -131,6 +142,7 @@
     <Compile Include="Models\Request\RepositoryForksListRequest.cs" />
     <Compile Include="Models\Request\RepositoryRequest.cs" />
     <Compile Include="Models\Request\Enterprise\SearchIndexingTarget.cs" />
+    <Compile Include="Models\Request\SearchIssuesRequestExclusions.cs" />
     <Compile Include="Models\Request\Signature.cs" />
     <Compile Include="Models\Request\CreateFileRequest.cs" />
     <Compile Include="Http\Response.cs" />
@@ -139,6 +151,8 @@
     <Compile Include="Models\Request\NewRelease.cs" />
     <Compile Include="Models\Request\NotificationsRequest.cs" />
     <Compile Include="Models\Request\CommitRequest.cs" />
+    <Compile Include="Models\Request\StartMigrationRequest.cs" />
+    <Compile Include="Models\Request\RepositoryPermissionRequest.cs" />
     <Compile Include="Models\Request\UserRename.cs" />
     <Compile Include="Models\Response\ActivityPayloads\ActivityPayload.cs" />
     <Compile Include="Models\Response\ActivityPayloads\CommitCommentPayload.cs" />
@@ -167,6 +181,7 @@
     <Compile Include="Models\Response\Enterprise\LicenseInfo.cs" />
     <Compile Include="Models\Response\Enterprise\AdminStatsUsers.cs" />
     <Compile Include="Models\Response\GitIgnoreTemplate.cs" />
+    <Compile Include="Models\Response\GpgKey.cs" />
     <Compile Include="Models\Response\License.cs" />
     <Compile Include="Models\Response\LicenseMetadata.cs" />
     <Compile Include="Models\Response\Merge.cs" />
@@ -174,6 +189,7 @@
     <Compile Include="Models\Response\ApplicationAuthorization.cs" />
     <Compile Include="Models\Response\GitHubCommitFile.cs" />
     <Compile Include="Models\Response\Meta.cs" />
+    <Compile Include="Models\Response\Migration.cs" />
     <Compile Include="Models\Response\MiscellaneousRateLimit.cs" />
     <Compile Include="Models\Response\Page.cs" />
     <Compile Include="Models\Response\PagesBuild.cs" />
@@ -315,7 +331,6 @@
     <Compile Include="Clients\MilestonesClient.cs" />
     <Compile Include="Clients\RepositoryForksClient.cs" />
     <Compile Include="Clients\RepositoryHooksClient.cs" />
-    <Compile Include="Clients\OrganizationMembersClient.cs" />
     <Compile Include="Clients\StarredClient.cs" />
     <Compile Include="Clients\TagsClient.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />

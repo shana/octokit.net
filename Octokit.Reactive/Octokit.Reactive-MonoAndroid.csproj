@@ -60,6 +60,9 @@
     <Compile Include="..\Octokit\Helpers\Ensure.cs">
       <Link>Helpers\Ensure.cs</Link>
     </Compile>
+    <Compile Include="..\Octokit\Helpers\Pagination.cs">
+      <Link>Helpers\Pagination.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
@@ -181,6 +184,12 @@
     <Compile Include="Clients\Enterprise\ObservableEnterpriseSearchIndexingClient.cs" />
     <Compile Include="Clients\Enterprise\IObservableEnterpriseLdapClient.cs" />
     <Compile Include="Clients\Enterprise\ObservableEnterpriseLdapClient.cs" />
+    <Compile Include="Clients\IObservableMigrationClient.cs" />
+    <Compile Include="Clients\IObservableMigrationsClient.cs" />
+    <Compile Include="Clients\ObservableMigrationClient.cs" />
+    <Compile Include="Clients\ObservableMigrationsClient.cs" />
+    <Compile Include="Clients\IObservableUserGpgKeysClient.cs" />
+    <Compile Include="Clients\ObservableUserGpgKeysClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup>

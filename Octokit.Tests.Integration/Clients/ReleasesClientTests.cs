@@ -12,6 +12,16 @@ using Xunit;
 
 public class ReleasesClientTests
 {
+    public class TheCtor
+    {
+        [Fact]
+        public void EnsuresNonNullArguments()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () => new ReleasesClient(null));
+        }
+    }
+
     public class TheGetReleasesMethod : IDisposable
     {
         private readonly IReleasesClient _releaseClient;
@@ -72,6 +82,83 @@ public class ReleasesClientTests
         public void Dispose()
         {
             _context.Dispose();
+        }
+    }
+
+    public class TheGetAllMethod
+    {
+        readonly IReleasesClient _releaseClient;
+        const string owner = "octokit";
+        const string name = "octokit.net";
+
+        public TheGetAllMethod()
+        {
+            var github = Helper.GetAuthenticatedClient();
+            _releaseClient = github.Repository.Release;
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsReleases()
+        {
+            var releases = await _releaseClient.GetAll(owner, name);
+
+            Assert.NotEmpty(releases);
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsCorrectCountOfReleasesWithoutStart()
+        {
+            var options = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1
+            };
+
+            var releases = await _releaseClient.GetAll(owner, name, options);
+
+            Assert.Equal(5, releases.Count);
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsCorrectCountOfReleasesWithStart()
+        {
+            var options = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1,
+                StartPage = 2
+            };
+
+            var releases = await _releaseClient.GetAll(owner, name, options);
+
+            Assert.Equal(5, releases.Count);
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsDistinctResultsBasedOnStartPage()
+        {
+            var startOptions = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1
+            };
+
+            var firstPage = await _releaseClient.GetAll(owner, name, startOptions);
+
+            var skipStartOptions = new ApiOptions
+            {
+                PageSize = 5,
+                PageCount = 1,
+                StartPage = 2
+            };
+
+            var secondPage = await _releaseClient.GetAll(owner, name, skipStartOptions);
+
+            Assert.NotEqual(firstPage[0].Id, secondPage[0].Id);
+            Assert.NotEqual(firstPage[1].Id, secondPage[1].Id);
+            Assert.NotEqual(firstPage[2].Id, secondPage[2].Id);
+            Assert.NotEqual(firstPage[3].Id, secondPage[3].Id);
+            Assert.NotEqual(firstPage[4].Id, secondPage[4].Id);
         }
     }
 
@@ -139,6 +226,9 @@ public class ReleasesClientTests
         readonly IGitHubClient _github;
         readonly RepositoryContext _context;
         readonly IReleasesClient _releaseClient;
+        const string owner = "octokit";
+        const string name = "octokit.net";
+        const int releaseId = 2248679;
 
         public TheUploadAssetMethod()
         {
@@ -214,6 +304,7 @@ public class ReleasesClientTests
 
             Assert.Contains("This is a plain text file.", Encoding.ASCII.GetString((byte[])response.Body));
         }
+
         [IntegrationTest]
         public async Task CanDownloadBinaryAsset()
         {
@@ -242,15 +333,66 @@ public class ReleasesClientTests
             using (var zipstream = new MemoryStream((byte[])response.Body))
             using (var archive = new ZipArchive(zipstream))
             {
-                var enttry = archive.Entries[0];
-                var data = new byte[enttry.Length];
-                await enttry.Open().ReadAsync(data, 0, data.Length);
+                var entry = archive.Entries[0];
+                var data = new byte[entry.Length];
+                await entry.Open().ReadAsync(data, 0, data.Length);
                 textContent = Encoding.ASCII.GetString(data);
             }
 
             Assert.Contains("This is a plain text file.", textContent);
         }
 
+        [IntegrationTest]
+        public async Task ReturnsCorrectCountOfReleasesWithoutStart()
+        {
+            var options = new ApiOptions
+            {
+                PageSize = 2,
+                PageCount = 1
+            };
+
+            var releases = await _releaseClient.GetAllAssets(owner, name, releaseId, options);
+
+            Assert.Equal(2, releases.Count);
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsCorrectCountOfReleasesWithStart()
+        {
+            var options = new ApiOptions
+            {
+                PageSize = 1,
+                PageCount = 1,
+                StartPage = 2
+            };
+
+            var assets = await _releaseClient.GetAllAssets(owner, name, releaseId, options);
+
+            Assert.Equal(1, assets.Count);
+        }
+
+        [IntegrationTest]
+        public async Task ReturnsDistinctResultsBasedOnStartPage()
+        {
+            var startOptions = new ApiOptions
+            {
+                PageSize = 1,
+                PageCount = 1
+            };
+
+            var firstPage = await _releaseClient.GetAllAssets(owner, name, releaseId, startOptions);
+
+            var skipStartOptions = new ApiOptions
+            {
+                PageSize = 1,
+                PageCount = 1,
+                StartPage = 2
+            };
+
+            var secondPage = await _releaseClient.GetAllAssets(owner, name, releaseId, skipStartOptions);
+
+            Assert.NotEqual(firstPage[0].Id, secondPage[0].Id);
+        }
 
         public void Dispose()
         {

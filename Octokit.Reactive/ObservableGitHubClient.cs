@@ -34,7 +34,7 @@ namespace Octokit.Reactive
             Authorization = new ObservableAuthorizationsClient(gitHubClient);
             Activity = new ObservableActivitiesClient(gitHubClient);
             Issue = new ObservableIssuesClient(gitHubClient);
-            Miscellaneous = new ObservableMiscellaneousClient(gitHubClient.Miscellaneous);
+            Miscellaneous = new ObservableMiscellaneousClient(gitHubClient);
             Notification = new ObservableNotificationsClient(gitHubClient);
             Oauth = new ObservableOauthClient(gitHubClient);
             Organization = new ObservableOrganizationsClient(gitHubClient);
@@ -46,6 +46,7 @@ namespace Octokit.Reactive
             Gist = new ObservableGistsClient(gitHubClient);
             Search = new ObservableSearchClient(gitHubClient);
             Enterprise = new ObservableEnterpriseClient(gitHubClient);
+            Migration = new ObservableMigrationClient(gitHubClient);
         }
 
         public IConnection Connection
@@ -72,6 +73,7 @@ namespace Octokit.Reactive
         public IObservableGitDatabaseClient Git { get; private set; }
         public IObservableSearchClient Search { get; private set; }
         public IObservableEnterpriseClient Enterprise { get; private set; }
+        public IObservableMigrationClient Migration { get; private set; }
 
         /// <summary>
         /// Gets the latest API Info - this will be null if no API calls have been made

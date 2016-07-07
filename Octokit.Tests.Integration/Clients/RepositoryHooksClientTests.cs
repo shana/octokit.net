@@ -25,10 +25,69 @@ namespace Octokit.Tests.Integration.Clients
 
                 var hooks = await github.Repository.Hooks.GetAll(_fixture.RepositoryOwner, _fixture.RepositoryName);
 
-                Assert.Single(hooks);
-                var actualHook = hooks[0];
+                Assert.Equal(_fixture.ExpectedHooks.Count, hooks.Count);
 
+                var actualHook = hooks[0];
                 AssertHook(_fixture.ExpectedHook, actualHook);
+            }
+
+            [IntegrationTest]
+            public async Task ReturnsCorrectCountOfHooksWithoutStart()
+            {
+                var github = Helper.GetAuthenticatedClient();
+                
+                var options = new ApiOptions
+                {
+                    PageSize = 5,
+                    PageCount = 1
+                };
+
+                var hooks = await github.Repository.Hooks.GetAll(_fixture.RepositoryOwner, _fixture.RepositoryName, options);
+
+                Assert.Equal(_fixture.ExpectedHooks.Count, hooks.Count);
+            }
+
+            [IntegrationTest]
+            public async Task ReturnsCorrectCountOfHooksWithStart()
+            {
+                var github = Helper.GetAuthenticatedClient();
+
+                var options = new ApiOptions
+                {
+                    PageSize = 2,
+                    PageCount = 1,
+                    StartPage = 3
+                };
+
+                var hooks = await github.Repository.Hooks.GetAll(_fixture.RepositoryOwner, _fixture.RepositoryName, options);
+
+                Assert.Equal(1, hooks.Count);
+            }
+
+            [IntegrationTest]
+            public async Task ReturnsDistinctResultsBasedOnStartPage()
+            {
+                var github = Helper.GetAuthenticatedClient();
+
+                var startOptions = new ApiOptions
+                {
+                    PageSize = 2,
+                    PageCount = 1
+                };
+
+                var firstPage = await github.Repository.Hooks.GetAll(_fixture.RepositoryOwner, _fixture.RepositoryName, startOptions);
+
+                var skipStartOptions = new ApiOptions
+                {
+                    PageSize = 2,
+                    PageCount = 1,
+                    StartPage = 2
+                };
+
+                var secondPage = await github.Repository.Hooks.GetAll(_fixture.RepositoryOwner, _fixture.RepositoryName, skipStartOptions);
+
+                Assert.NotEqual(firstPage[0].Id, secondPage[0].Id);
+                Assert.NotEqual(firstPage[1].Id, secondPage[1].Id);
             }
         }
 
@@ -137,7 +196,7 @@ namespace Octokit.Tests.Integration.Clients
                 var actualHook = await github.Repository.Hooks.Edit(_fixture.RepositoryOwner, _fixture.RepositoryName, _fixture.ExpectedHook.Id, editRepositoryHook);
 
                 var expectedConfig = new Dictionary<string, string> { { "content_type", "json" }, { "url", "http://test.com/example" } };
-                Assert.Equal(new[] { "commit_comment", "pull_request" }.ToList(), actualHook.Events.ToList());
+                Assert.Equal(new[] { "deployment", "pull_request" }.ToList(), actualHook.Events.ToList());
                 Assert.Equal(expectedConfig.Keys, actualHook.Config.Keys);
                 Assert.Equal(expectedConfig.Values, actualHook.Config.Values);
             }
@@ -155,7 +214,7 @@ namespace Octokit.Tests.Integration.Clients
                 var actualHook = await github.Repository.Hooks.Edit(_fixture.RepositoryOwner, _fixture.RepositoryName, _fixture.ExpectedHook.Id, editRepositoryHook);
 
                 var expectedConfig = new Dictionary<string, string> { { "project", "GEZDGORQFY2TCNZRGY2TSMBVGUYDK" } };
-                Assert.Equal(new[] { "commit_comment", "pull_request" }.ToList(), actualHook.Events.ToList());
+                Assert.Equal(new[] { "deployment", "pull_request" }.ToList(), actualHook.Events.ToList());
                 Assert.Equal(expectedConfig.Keys, actualHook.Config.Keys);
                 Assert.Equal(expectedConfig.Values, actualHook.Config.Values);
             }
@@ -217,7 +276,7 @@ namespace Octokit.Tests.Integration.Clients
                 await github.Repository.Hooks.Delete(_fixture.RepositoryOwner, _fixture.RepositoryName, _fixture.ExpectedHook.Id);
                 var hooks = await github.Repository.Hooks.GetAll(_fixture.RepositoryOwner, _fixture.RepositoryName);
 
-                Assert.Empty(hooks);
+                Assert.Equal(4, hooks.Count);
             }
         }
 
