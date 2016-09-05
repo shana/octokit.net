@@ -20,7 +20,7 @@ namespace Octokit.Tests.Integration.fixtures
                 CreateHook(_github, _repository, "awsopsworks", "push"),
                 CreateHook(_github, _repository, "activecollab", "push"),
                 CreateHook(_github, _repository, "acunote", "push"),
-                CreateHook(_github, _repository, "agilebench", "push")
+                CreateHook(_github, _repository, "agilezen", "push")
             };
             _hook = _hooks[0];
         }
@@ -28,6 +28,8 @@ namespace Octokit.Tests.Integration.fixtures
         public string RepositoryOwner { get { return _repository.Owner.Login; } }
 
         public string RepositoryName { get { return _repository.Name; } }
+
+        public int RepositoryId { get { return _repository.Id; } }
 
         public RepositoryHook ExpectedHook { get { return _hook; } }
 

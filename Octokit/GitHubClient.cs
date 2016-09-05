@@ -91,14 +91,13 @@ namespace Octokit
             Issue = new IssuesClient(apiConnection);
             Migration = new MigrationClient(apiConnection);
             Miscellaneous = new MiscellaneousClient(connection);
-            Notification = new NotificationsClient(apiConnection);
             Oauth = new OauthClient(connection);
             Organization = new OrganizationsClient(apiConnection);
             PullRequest = new PullRequestsClient(apiConnection);
             Repository = new RepositoriesClient(apiConnection);
             Search = new SearchClient(apiConnection);
-            SshKey = new SshKeysClient(apiConnection);
             User = new UsersClient(apiConnection);
+            Reaction = new ReactionsClient(apiConnection);
         }
 
         /// <summary>
@@ -225,52 +224,12 @@ namespace Octokit
         public IGistsClient Gist { get; private set; }
 
         /// <summary>
-        /// Access GitHub's Releases API.
-        /// </summary>
-        /// <remarks>
-        /// Refer to the API documentation for more information: https://developer.github.com/v3/repos/releases/
-        /// </remarks>
-        [Obsolete("Use Repository.Release instead")]
-        public IReleasesClient Release
-        {
-            get { return Repository.Release; }
-        }
-
-        // TODO: this should be under Users to align with the API docs
-        // TODO: this should be named PublicKeys to align with the API docs
-        /// <summary>
-        /// Access GitHub's Public Keys API.
-        /// </summary>
-        /// <remarks>
-        /// Refer to the API documentation for more information: https://developer.github.com/v3/users/keys/
-        /// </remarks>
-        public ISshKeysClient SshKey { get; private set; }
-
-        /// <summary>
         /// Access GitHub's Users API.
         /// </summary>
         /// <remarks>
         /// Refer to the API documentation for more information: https://developer.github.com/v3/users/
         /// </remarks>
         public IUsersClient User { get; private set; }
-
-        // TODO: this should be under Activities to align with the API docs
-        /// <summary>
-        /// Access GitHub's Notifications API.
-        /// </summary>
-        /// <remarks>
-        /// Refer to the API documentation for more information: https://developer.github.com/v3/activity/notifications/
-        /// </remarks>
-        public INotificationsClient Notification { get; private set; }
-
-        /// <summary>
-        /// Access GitHub's Git Data API.
-        /// </summary>
-        /// <remarks>
-        /// Refer to the API documentation for more information: https://developer.github.com/v3/git/
-        /// </remarks>
-        [Obsolete("Use Git instead")]
-        public IGitDatabaseClient GitDatabase { get { return Git; } }
 
         /// <summary>
         /// Access GitHub's Git Data API.
@@ -304,6 +263,14 @@ namespace Octokit
         /// Refer to the API documentation for more information: https://developer.github.com/v3/enterprise/
         /// </remarks>
         public IEnterpriseClient Enterprise { get; private set; }
+
+        /// <summary>
+        /// Access GitHub's Reactions API
+        /// </summary>
+        /// <remarks>
+        /// Refer to the API documentation for more information: https://developer.github.com/v3/reactions/
+        /// </remarks>
+        public IReactionsClient Reaction { get; private set; }
 
         static Uri FixUpBaseUri(Uri uri)
         {
